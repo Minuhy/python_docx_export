@@ -1,0 +1,4 @@
+# 不计入代码统计
+
+# 虚拟环境
+venv/* linguist-vendored

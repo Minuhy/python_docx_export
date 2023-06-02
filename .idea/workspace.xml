@@ -31,7 +31,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
   </component>
-  <component name="RunManager" selected="Python.导出文本">
+  <component name="RunManager" selected="Python.导出ole文件（中文乱码）">
     <configuration name="导出文本" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="python_docx_export" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -166,8 +166,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.导出文本" />
         <item itemvalue="Python.导出ole文件（中文乱码）" />
+        <item itemvalue="Python.导出文本" />
       </list>
     </recent_temporary>
   </component>
@@ -180,6 +180,7 @@
       <option name="presentableId" value="Default" />
       <updated>1685675303390</updated>
       <workItem from="1685675315019" duration="5675000" />
+      <workItem from="1685683161243" duration="614000" />
     </task>
     <servers />
   </component>
@@ -188,7 +189,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/python_docx_export$.coverage" NAME="导出文本 覆盖结果" MODIFIED="1685682279028" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/测试例程" />
-    <SUITE FILE_PATH="coverage/python_docx_export$ole.coverage" NAME="导出ole（避免多次写入） 覆盖结果" MODIFIED="1685682195442" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/测试例程" />
+    <SUITE FILE_PATH="coverage/python_docx_export$ole.coverage" NAME="导出ole文件（中文乱码） 覆盖结果" MODIFIED="1685683445079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/测试例程" />
     <SUITE FILE_PATH="coverage/python_docx_export$docx.coverage" NAME="导出docx附件 覆盖结果" MODIFIED="1685681118767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/测试例程" />
     <SUITE FILE_PATH="coverage/python_docx_export$main.coverage" NAME="main 覆盖结果" MODIFIED="1685681739069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
