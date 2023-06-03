@@ -102,10 +102,16 @@ class Application(tk.Frame):
     def add_file_list(self, file_list: list):
         success = 0
         index = len(self.file_list)
+
+        # 序号前面补 0
+        bit = len(str(index + len(file_list)))
+        if bit < 4:
+            bit = 4
+
         for file in file_list:
             index += 1
             logger.debug('添加文件：%s', file)
-            self.main_listbox.insert('end', str(index).rjust(4,'0').ljust(4,' ')+file)  # 从最后一个位置开始加入值
+            self.main_listbox.insert('end', str(index).rjust(bit, '0') + ' - ' + file)  # 从最后一个位置开始加入值
             self.file_list.append(file)
             success += 1
         showinfo('添加结果', '添加成功{0}个'.format(success))
