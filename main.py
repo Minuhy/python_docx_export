@@ -1,4 +1,4 @@
-# 执行 pip install -r pip_list.txt 安装依赖
+# 执行 pip install -r requirements.txt 安装依赖
 import os
 import docx
 from oletools import oleobj
