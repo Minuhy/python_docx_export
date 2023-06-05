@@ -6,6 +6,8 @@ from datetime import datetime
 from tkinter import filedialog
 from tkinter.messagebox import askokcancel, askyesno, showinfo, showwarning
 
+from gui import ApplicationGUI
+
 v = 'v 0.1.0.1'
 
 # APP根目录
@@ -50,11 +52,10 @@ def file_check(file_path: str):
     return True
 
 
-class Application(tk.Frame):
+class Application(ApplicationGUI):
     def __init__(self, master=None, version=''):
         super().__init__(master)
         self.master = master
-        self.pack()
         self.version = version
 
         # 待处理文件列表
@@ -62,63 +63,12 @@ class Application(tk.Frame):
         # 文件添加索引
         self.file_index = 0
 
-        # 主列表控件（显示待处理文件）
         self.main_listbox = None
+        self.create_list(self.frame_list)
 
-        # 导出目录
-        self.entry_export_dir_val = tk.StringVar()
-
-        # 导出类型
-        self.check_export_text = tk.IntVar()
-        self.check_export_table = tk.IntVar()
-        self.check_export_image = tk.IntVar()
-        self.check_export_attachment = tk.IntVar()
-
-        # 创建控件，左右
-        main_frame = tk.Frame(self)
-
-        self.create_left(main_frame)
-        self.create_right(main_frame)
-
-        main_frame.pack(expand=1, fill=tk.BOTH, padx=10, pady=10)
-
-    def create_left(self, frame):
-        """
-        左边布局，文件列表
-        :return: None
-        """
-        main_left_frame = tk.Frame(frame)
-
-        # 标签面板
-        list_frame_label = tk.LabelFrame(main_left_frame, text='待处理文件列表')
-
-        # 选择面板
-        choose_frame = tk.Frame(list_frame_label)
-
-        tk.Button(choose_frame,
-                  text="选择文件",
-                  fg="black",
-                  width=15, height=1,
-                  command=self.choose_file) \
-            .grid(row=0, column=0)
-
-        tk.Button(choose_frame,
-                  text="选择文件夹",
-                  fg="black",
-                  width=15, height=1,
-                  command=self.choose_dir) \
-            .grid(row=0, column=1)
-
-        # 移除选项按钮
-        tk.Button(choose_frame,
-                  text='移除列表选中项',
-                  command=self.remove_list_item) \
-            .grid(row=0, column=4)
-
-        choose_frame.pack()
-
+    def create_list(self, frame):
         # 一个列表
-        list_frame = tk.Frame(list_frame_label)
+        list_frame = tk.Frame(frame)
         scroll_h_bar = tk.Scrollbar(list_frame, orient=tk.HORIZONTAL)  # 水平滚动条组件
         scroll_v_bar = tk.Scrollbar(list_frame, orient=tk.VERTICAL)  # 垂直滚动条组件
         self.main_listbox = tk.Listbox(list_frame,
@@ -131,14 +81,13 @@ class Application(tk.Frame):
         scroll_h_bar.pack(side=tk.BOTTOM, fill=tk.X)  # 设置水平滚动条显示的位置
         scroll_h_bar.config(command=self.main_listbox.xview)  # 设置Scrollbar组件的command选项为该组件的xview()方法
         self.main_listbox.pack(side=tk.LEFT, fill=tk.BOTH)
-        list_frame.pack(side=tk.TOP)
-        list_frame_label.pack(expand=True)
+        list_frame.place(relx=0, rely=0, relheight=1, relwidth=1, bordermode='ignore')
 
-        main_left_frame.grid_rowconfigure(0, weight=1)
-        main_left_frame.grid_columnconfigure(0, weight=1)
-        main_left_frame.grid_columnconfigure(1, weight=1)
-        main_left_frame.grid_rowconfigure(1, weight=1)
-        main_left_frame.grid(row=0, column=0, sticky='n')
+    def create_left(self, frame):
+        """
+        左边布局，文件列表
+        :return: None
+        """
 
     def create_right(self, frame):
         """
@@ -351,7 +300,7 @@ class Application(tk.Frame):
 
 def run():
     root = tk.Tk()
-    app = Application(master=root, version=v)
+    Application(master=root, version=v)
 
     def closeWindow():
         ans = askyesno(title='提示', message='是否关闭窗口？')
@@ -364,7 +313,7 @@ def run():
 
     root.title('导出docx')
     root.iconbitmap('images/icon.ico')
-    app.mainloop()
+    root.mainloop()
 
 
 if __name__ == '__main__':

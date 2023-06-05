@@ -249,7 +249,7 @@
       <workItem from="1685683161243" duration="614000" />
       <workItem from="1685717148506" duration="638000" />
       <workItem from="1685727874477" duration="264000" />
-      <workItem from="1685796765827" duration="33713000" />
+      <workItem from="1685796765827" duration="34324000" />
     </task>
     <servers />
   </component>
@@ -257,7 +257,7 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/python_docx_export$app.coverage" NAME="app 覆盖结果" MODIFIED="1685943940328" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/python_docx_export$app.coverage" NAME="app 覆盖结果" MODIFIED="1685945176325" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/python_docx_export$.coverage" NAME="导出文本 覆盖结果" MODIFIED="1685682279028" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/测试例程" />
     <SUITE FILE_PATH="coverage/python_docx_export$ole.coverage" NAME="导出ole文件（中文乱码） 覆盖结果" MODIFIED="1685683445079" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/测试例程" />
     <SUITE FILE_PATH="coverage/python_docx_export$docx.coverage" NAME="导出docx附件 覆盖结果" MODIFIED="1685681118767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/测试例程" />
