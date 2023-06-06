@@ -15,7 +15,7 @@ def re_decode(s: str, encoding: str = 'gbk'):
     return i81.decode(encoding)
 
 
-def get_new_path(i: int, file_path: str, out_dir: str = __file__):
+def get_new_path(i: int, file_path: str, out_dir: str = __file__, file_name_format=None):
     """
     根据序号和文件名拿到新的路径名，
     默认输出目录为当前文件所在文件夹
@@ -23,21 +23,45 @@ def get_new_path(i: int, file_path: str, out_dir: str = __file__):
     :param file_path: 原始文件名（路径）
     :param out_dir: 输出目录，默认为当前文件所在文件夹
     :return: 新文件名（格式为“序号 - 原文件名”）
+    :param file_name_format: 导出文件名格式，会直接替换对应的文字
     """
-    self_dir = os.path.dirname(os.path.abspath(out_dir))  # 获取导出路径
-    i = str(i).rjust(2, '0')  # 不够前面添0
-    return self_dir + '\\' + i + ' - ' + os.path.basename(file_path)  # 拼接路径
+    if file_name_format is None:
+        file_name_format = '|自增编号||连接符||原文件名||后缀名|'
+    out_dir = os.path.dirname(os.path.abspath(out_dir))  # 获取导出路径
+    number = str(i).rjust(4, '0')  # |自增编号|，不够前面添0
+    link_char = ' - '  # |连接符|
+    raw_file_name = os.path.basename(file_path)  # |原文件名|
+    suffix = ''  # |后缀名|
+    if '.' in raw_file_name:
+        name_part = raw_file_name.split('.')
+        raw_file_name = name_part[0]
+        suffix = name_part[1]
+    return out_dir + '\\' + file_name_format.replace('|自增编号|', number) \
+        .replace('|连接符|', link_char) \
+        .replace('|原文件名|', raw_file_name) \
+        .replace('|后缀名|', '.' + suffix) \
+        .strip()  # 拼接路径
 
 
-def export_docx(docx_file: str, output_dir: str, is_print=False):
+def export_docx(docx_file: str, output_dir: str, name_format: str,
+                export_type=None,
+                is_del_raw=False,
+                is_print=False
+                ):
     """
     导出docx中的所有内容
     :param docx_file: docx路径
     :param output_dir: 导出的文件夹路径
+    :param name_format: 导出文件名的格式
+    :param export_type: 导出类型
+    :param is_del_raw: 导出成功后是否删除原文件
     :param is_print: 是否打印调试信息
     :return: 导出的文件列表
     """
+
     # 文件导出列表
+    if export_type is None:
+        export_type = ['文本', '表格', '图片', '附件', '合并']
     export_files = []
 
     # 打开docx文档
@@ -181,5 +205,5 @@ def export_docx(docx_file: str, output_dir: str, is_print=False):
 
 if __name__ == '__main__':
     file = 'docx/word.docx'
-    files = export_docx(file, __file__, False)  # 打印调试信息（批量时会慢）
+    files = export_docx(file, __file__, is_print=False)  # 打印调试信息（批量时会慢）
     print(files)

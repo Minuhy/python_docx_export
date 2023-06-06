@@ -228,3 +228,118 @@
 2023-06-05 13:20:51 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY020_大21计应一班洪伟\第4周实验.docx
 2023-06-05 13:20:51 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY036_大21计应一班唐兰军\第4周实验.docx
 2023-06-05 13:20:51 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY045_罗杰\大21计应一班罗杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加子文件夹中的内容：True 选择目录：D:/y17mm/Desktop/zuoye/test
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\jy1.txt
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\12
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\12\JY009_大21计应一班钟雯
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\12\JY009_大21计应一班钟雯\01.html
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\12\JY009_大21计应一班钟雯\捕获.PNG
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\12\JY012_大21计应1班帅领
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\12\JY012_大21计应1班帅领\01.html
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\12\JY012_大21计应1班帅领\捕获.PNG
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\12\JY013_1
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\12\JY013_1\01.html
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\12\JY040_大21计应一班贺颖哲
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\12\JY040_大21计应一班贺颖哲\捕获.PNG
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\13
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：缓存文件 D:/y17mm/Desktop/zuoye/test\13\~$032_第3周实验.docx大21计应1班李巧玲.docx
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\13\JY004_大21计应1班鄢佳玲
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\13\JY004_大21计应1班鄢佳玲\1.PNG
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\13\JY004_大21计应1班鄢佳玲\2.PNG
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\13\JY004_大21计应1班鄢佳玲\3.PNG
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\13\JY004_大21计应1班鄢佳玲\4.PNG
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\13\JY027_大21计应一班肖金波
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\13\JY029_大21计应一班邓鹏
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\13\JY046_大21计应1班杨浩
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\13\JY046_大21计应1班杨浩\2.PNG
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\13\JY046_大21计应1班杨浩\3.PNG
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：非docx文件 D:/y17mm/Desktop/zuoye/test\13\JY046_大21计应1班杨浩\捕获.PNG
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\14
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\14\JY020_大21计应一班洪伟
+2023-06-05 23:50:06 |-DEBUG in root@file_check - 未添加：缓存文件 D:/y17mm/Desktop/zuoye/test\14\JY020_大21计应一班洪伟\~$第4周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\14\JY036_大21计应一班唐兰军
+2023-06-05 23:50:06 |-DEBUG in root@choose_dir - 添加目录：D:/y17mm/Desktop/zuoye/test\14\JY045_罗杰
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY003_大21计应1班刘京.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY004_大21计应1班鄢佳玲.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY008_大21计应一班陈菁菁.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY009_大21计应一班钟雯.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY011_大21计应一班陈霜宇.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY015_大21计应1班曾伟雄.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY018_大21计应一班邓誉.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY019_何志杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY020_第2周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY022_郑文洁.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY024_大21计应一班龙俊杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY025_大21计应一班唐兰军.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY026_大21计应一班 周添乐.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY028_张从文.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY029_大21计应一班陈嘉伟.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY030_大21计应一班罗杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY031_大21计应1班舒子毅.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY032_大21计应1班李巧玲.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY033_大21计应一班刘灿.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY035_大21计应1班 向义.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY036_大21计应1班曹斌.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY037_大21计应一班龙晨曦.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY043_大21计应1班刘元武第2周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY044_第2周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY047_李柯宏.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY048_龚俊.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY049_大21计应1班肖雅.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\12\JY013_1\大21计应一班王婕.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY019_何志杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY020_大21计应一班洪伟.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY021_大21计应一班唐兰军.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY022_大21计应一班邓誉.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY024_大21计应一班郑文洁.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY028_大21计应一班贺颖哲.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY031_大21计应一班舒子毅.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY032_第3周实验.docx大21计应1班李巧玲.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY033_大21计应一班刘灿.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY035_大21计应1班 向义.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY036_赵媛媛.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY038_大21计应一班龙晨曦.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY039_大21计应1班曹斌.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY040_大21计应一班龙俊杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY041_大21计应一班罗杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY042_大21计应一班陈嘉伟.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY043_张从文.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY044_大21计应1班李柯宏.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY045_龚俊.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY046_大21计应1班杨浩.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY047_大21计应1班刘元武.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY049_大21计应1班肖雅.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY027_大21计应一班肖金波\第3周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\13\JY029_大21计应一班邓鹏\第3周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY003_大21计应1班刘京.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY004_大21计应1班鄢佳玲.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY008_大21计应一班陈菁菁.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY009_大21计应一班钟雯.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY011_大21计应一班陈清清.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY012_大21计应1班帅领 第4周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY013_大21计应一班陈霜宇.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY013_第4周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY014_大21计应一班  王婕.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY019_何志杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY023_大21计应一班肖金波.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY024_大21计应一班贺颖哲.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY028_大21计应一班 周添乐.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY030_大21计应一班 曾伟雄.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY031_大21计应1班舒子毅.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY032_第4周实验.docx大21计应1班李巧玲.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY034_大21计应一班刘灿.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY035_大21计应1班 向义.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY037_大21计应一班龙晨曦.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY038_曹斌.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY040_大21计应一班龙俊杰.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY041_大21计应一班陈嘉伟.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY043_大21计应1班刘元武.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY044_大21计应一班张从文.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY046_大21计应一班龚俊.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY047_大21计应一班杨浩.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY048_李柯宏.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY049_大21计应1班肖雅.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY020_大21计应一班洪伟\第4周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY036_大21计应一班唐兰军\第4周实验.docx
+2023-06-05 23:50:06 |-DEBUG in root@add_file_list - 添加文件：D:/y17mm/Desktop/zuoye/test\14\JY045_罗杰\大21计应一班罗杰.docx

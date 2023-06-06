@@ -1,12 +1,12 @@
 import logging
 import os
+import time
 import tkinter as tk
-from tkinter import ttk
 from datetime import datetime
 from tkinter import filedialog
-from tkinter.messagebox import askokcancel, askyesno, showinfo, showwarning
+from tkinter.messagebox import askyesno, showinfo, showwarning
 
-from gui import ApplicationGUI
+from gui import ApplicationGUI, ExportGUI
 
 v = 'v 0.1.0.1'
 
@@ -65,12 +65,46 @@ class Application(ApplicationGUI):
 
         self.main_listbox = None
         self.create_list(self.frame_list)
+        self.set_combobox_text()
+        self.set_checkbutton_text()
+        self.register_command()
+
+        self.entry_tips_val.set('(>_<)')
+
+        self.lb_brand.configure(text='批量导出docx文本、图片和附件程序\n' + self.version + '\n@B站：敏Ymm')
+
+    def set_checkbutton_text(self):
+        self.che_text.set(1)
+        self.che_image.set(1)
+        self.che_table.set(1)
+        self.che_combine.set(1)
+        self.che_attachment.set(1)
+        self.che_info.set(1)
+
+    def set_combobox_text(self):
+        self.cb_save_position['value'] = ('原文件目录中以原文件命名的子文件夹中', '原文件所在文件夹', '自定义文件夹')
+        self.combobox_save_path.set(self.cb_save_position['value'][0])
+        self.cb_save_position.current(0)
+
+        self.cb_name_part1['value'] = ('|自增编号|', '|连接符|', '|原文件名|', '|后缀名|')
+        self.cb_name_part2['value'] = ('|连接符|', '|原文件名|', '|后缀名|', '|自增编号|')
+        self.cb_name_part3['value'] = ('|原文件名|', '|后缀名|', '|自增编号|', '|连接符|')
+        self.cb_name_part4['value'] = ('|后缀名|', '|自增编号|', '|连接符|', '|原文件名|')
+
+        self.combobox_name1.set(self.cb_name_part1['value'][0])
+        self.combobox_name2.set(self.cb_name_part2['value'][0])
+        self.combobox_name3.set(self.cb_name_part3['value'][0])
+        self.combobox_name4.set(self.cb_name_part4['value'][0])
+        self.cb_name_part1.current(0)
+        self.cb_name_part2.current(0)
+        self.cb_name_part3.current(0)
+        self.cb_name_part4.current(0)
 
     def create_list(self, frame):
         # 一个列表
         list_frame = tk.Frame(frame)
         scroll_h_bar = tk.Scrollbar(list_frame, orient=tk.HORIZONTAL)  # 水平滚动条组件
-        scroll_v_bar = tk.Scrollbar(list_frame, orient=tk.VERTICAL)  # 垂直滚动条组件
+        scroll_v_bar = tk.Scrollbar(list_frame, orient=tk.VERTICAL, )  # 垂直滚动条组件
         self.main_listbox = tk.Listbox(list_frame,
                                        width=60, height=20,
                                        selectmode=tk.MULTIPLE,
@@ -80,157 +114,156 @@ class Application(ApplicationGUI):
         scroll_v_bar.config(command=self.main_listbox.yview)  # 设置Scrollbar组件的command选项为该组件的yview()方法
         scroll_h_bar.pack(side=tk.BOTTOM, fill=tk.X)  # 设置水平滚动条显示的位置
         scroll_h_bar.config(command=self.main_listbox.xview)  # 设置Scrollbar组件的command选项为该组件的xview()方法
-        self.main_listbox.pack(side=tk.LEFT, fill=tk.BOTH)
+        self.main_listbox.place(relx=0, rely=0, relheight=0.95, relwidth=0.952, bordermode='ignore')
         list_frame.place(relx=0, rely=0, relheight=1, relwidth=1, bordermode='ignore')
 
-    def create_left(self, frame):
-        """
-        左边布局，文件列表
-        :return: None
-        """
-
-    def create_right(self, frame):
-        """
-        右边布局
-        :return: None
-        """
-        main_right_frame = tk.Frame(frame)
-
-        # 导出设置=====================================================================================================
-        export_setting_frame = tk.LabelFrame(main_right_frame, text='导出设置')
-        # 导出下拉框
-        tk.Label(export_setting_frame, text="保存位置：").grid(row=0, column=0)
-        # 创建下拉菜单
-        combobox = ttk.Combobox(export_setting_frame, width=32, state="readonly")
-        # 设置下拉菜单中的值
-        combobox['value'] = ('原文件目录中以原文件命名的子文件夹中', '原文件所在文件夹', '自定义文件夹')
-        # 使用 grid() 来控制控件的位置
-        combobox.grid(row=0, column=1)
-        # 通过 current() 设置下拉菜单选项的默认值
-        combobox.current(0)
-
-        # 选择导出目录按钮
-        tk.Button(export_setting_frame,
-                  text="选择导出文件夹",
-                  width=15, height=1,
-                  command=self.choose_export_dir) \
-            .grid(row=0, column=2)
-
-        # 导出目录输入框
-        tk.Entry(export_setting_frame,
-                 width=60,
-                 textvariable=self.entry_export_dir_val) \
-            .grid(row=1, column=0, columnspan=3)
-
-        # 导出下拉框
-        tk.Label(export_setting_frame, text="导出文件名设置：") \
-            .grid(row=2, column=0)
-
-        # 创建下拉菜单
-        combobox = ttk.Combobox(export_setting_frame, width=8)
-        # 设置下拉菜单中的值
-        combobox['value'] = ('|自增编号|', '|原文件名|', '|后缀名|', '|连接符|')
-        # 使用 grid() 来控制控件的位置
-        combobox.grid(row=3, column=0)
-        # 通过 current() 设置下拉菜单选项的默认值
-        combobox.current(0)
-
-        # 创建下拉菜单
-        combobox = ttk.Combobox(export_setting_frame, width=8)
-        # 设置下拉菜单中的值
-        combobox['value'] = ('|自增编号|', '|原文件名|', '|后缀名|', '|连接符|')
-        # 使用 grid() 来控制控件的位置
-        combobox.grid(row=3, column=1)
-        # 通过 current() 设置下拉菜单选项的默认值
-        combobox.current(0)
-
-        # 创建下拉菜单
-        combobox = ttk.Combobox(export_setting_frame, width=8)
-        # 设置下拉菜单中的值
-        combobox['value'] = ('|自增编号|', '|原文件名|', '|后缀名|', '|连接符|')
-        # 使用 grid() 来控制控件的位置
-        combobox.grid(row=3, column=2)
-        # 通过 current() 设置下拉菜单选项的默认值
-        combobox.current(0)
-
-        # 创建下拉菜单
-        combobox = ttk.Combobox(export_setting_frame, width=8)
-        # 设置下拉菜单中的值
-        combobox['value'] = ('|自增编号|', '|原文件名|', '|后缀名|', '|连接符|')
-        # 使用 grid() 来控制控件的位置
-        combobox.grid(row=3, column=3)
-        # 通过 current() 设置下拉菜单选项的默认值
-        combobox.current(0)
-
-        check_box_frame = tk.Frame(export_setting_frame)
-        # 复选框控件，使用variable参数来接收变量
-        check1 = tk.Checkbutton(check_box_frame, text="内容文本", variable=self.check_export_text, onvalue=1,
-                                offvalue=0)
-        check2 = tk.Checkbutton(check_box_frame, text="表格文本", variable=self.check_export_table, onvalue=1,
-                                offvalue=0)
-        check3 = tk.Checkbutton(check_box_frame, text="图片", variable=self.check_export_image, onvalue=1,
-                                offvalue=0)
-        check4 = tk.Checkbutton(check_box_frame, text="附件", variable=self.check_export_attachment, onvalue=1,
-                                offvalue=0)
-        check5 = tk.Checkbutton(check_box_frame, text="合并文本表格", variable=self.check_export_attachment, onvalue=1,
-                                offvalue=0)
-
-        # 选择第一个为默认选项
-
-        check1.select()
-        check2.select()
-        check3.select()
-        check4.select()
-        check5.select()
-
-        check1.grid(row=0, column=0)
-        check2.grid(row=0, column=1)
-        check3.grid(row=0, column=2)
-        check4.grid(row=0, column=3)
-        check5.grid(row=0, column=4)
-
-        check_box_frame.grid(row=4, column=0, columnspan=3)
-
-        export_setting_frame.pack()
-
-        # 导出按钮=====================================================================================================
-
+    def register_command(self):
+        # 选择文件
+        self.btn_import_files.bind('<Button>', self.choose_file)
+        # 选择文件夹
+        self.btn_import_dir.bind('<Button>', self.choose_dir)
+        # 删除列表选中项
+        self.btn_delete_list_items.bind('<Button>', self.remove_list_item)
+        # 选择文件夹
+        self.btn_choose_position.bind('<Button>', self.choose_export_dir)
         # 导出按钮
-        tk.Button(main_right_frame,
-                  text="导出",
-                  fg="red",
-                  width=20, height=1,
-                  command=self.export) \
-            .pack()
+        self.btn_export.bind('<Button>', self.export)
+        # ---------------------------------------------------------------------------
+        self.bind_cb_evt(self.cb_name_part1, self.name_tips)
+        self.bind_cb_evt(self.cb_name_part2, self.name_tips)
+        self.bind_cb_evt(self.cb_name_part3, self.name_tips)
+        self.bind_cb_evt(self.cb_name_part4, self.name_tips)
+        # ---------------------------------------------------------------------------
+        self.bind_cb_evt(self.cb_save_position, self.dir_tips)
+        self.bind_cb_evt(self.entry_save_position, self.dir_tips)
+        # ---------------------------------------------------------------------------
+        self.cb_delete_raw_file.bind('<Button>', self.delete_tips)
+        # ---------------------------------------------------------------------------
+        self.cb_export_type_text.bind('<Button>', self.export_tips_text)
+        self.cb_export_type_image.bind('<Button>', self.export_tips_image)
+        self.cb_export_type_attachment.bind('<Button>', self.export_tips_attachment)
+        self.cb_export_type_table.bind('<Button>', self.export_tips_table)
+        self.cb_export_type_combine_text_table.bind('<Button>', self.export_tips_combine_text_table)
+        self.cb_export_type_info.bind('<Button>', self.export_tips_info)
 
-        tk.Label(main_right_frame, text='批量导出docx文本、图片和附件程序\n' + self.version, font=('宋体', 18, 'bold italic'),
-                 bg='#7CCD7C',
-                 # 设置标签内容区大小
-                 width=34, height=2,
-                 # 设置填充区距离、边框宽度和其样式（凹陷式）
-                 padx=10, pady=15, borderwidth=10, relief='sunken').pack(side=tk.BOTTOM)
+    @staticmethod
+    def bind_cb_evt(cb, evt):
+        cb.bind('<Button>', evt)
+        cb.bind('<<ComboboxSelected>>', evt)
+        cb.bind('<space>', evt)
+        cb.bind('<Return>', evt)
+        cb.bind('<Key>', evt)
 
-        main_right_frame.grid(row=0, column=1, sticky='n')
+    def export_tips_image(self, evt):
+        if not evt:
+            return
+        # 这个值是点击之前的值，
+        if not self.che_image.get():
+            self.entry_tips_val.set('导出Word中的图片')
+        else:
+            self.entry_tips_val.set('不导出Word中的图片')
 
-    def choose_export_dir(self):
+    def export_tips_attachment(self, evt):
+        if not evt:
+            return
+        # 这个值是点击之前的值，
+        if not self.che_attachment.get():
+            self.entry_tips_val.set('导出Word中的附件')
+        else:
+            self.entry_tips_val.set('不导出Word中的附件')
+
+    def export_tips_table(self, evt):
+        if not evt:
+            return
+        # 这个值是点击之前的值，
+        if not self.che_table.get():
+            self.entry_tips_val.set('导出Word表格中的文字')
+        else:
+            self.entry_tips_val.set('不导出Word表格中的文字')
+
+    def export_tips_info(self, evt):
+        if not evt:
+            return
+        # 这个值是点击之前的值，
+        if not self.che_info.get():
+            self.entry_tips_val.set('导出Word文档的信息（作者、修改时间啥的）')
+        else:
+            self.entry_tips_val.set('不导出Word文档的信息')
+
+    def export_tips_combine_text_table(self, evt):
+        if not evt:
+            return
+        # 这个值是点击之前的值，
+        if not self.che_combine.get():
+            self.entry_tips_val.set('合并导出Word中的普通文字和表格文字')
+        else:
+            self.entry_tips_val.set('分别导出Word中的普通文字和表格文字')
+
+    def export_tips_text(self, evt):
+        if not evt:
+            return
+        # 这个值是点击之前的值，
+        if not self.che_text.get():
+            self.entry_tips_val.set('导出Word中的普通文字')
+        else:
+            self.entry_tips_val.set('不导出Word中的普通文字')
+
+    def delete_tips(self, evt):
+        if not evt:
+            return
+        # 这个值是点击之前的值，
+        if not self.che_delete_raw.get():
+            self.entry_tips_val.set('导出成功后立即删除原文件')
+        else:
+            self.entry_tips_val.set('导出成功后保留原文件')
+
+    def dir_tips(self, evt):
+        if not evt:
+            return
+        way = self.combobox_save_path.get()
+        if way == self.cb_save_position['value'][0]:
+            # 原文件子目录
+            self.entry_tips_val.set('会在原文件所在目录创建一个同名子文件夹以存储')
+        elif way == self.cb_save_position['value'][1]:
+            # 原文件目录
+            self.entry_tips_val.set('保存位置与原文件在同一文件夹')
+        else:
+            export_dir = self.entry_save_position_val.get()
+            # 指定目录
+            self.entry_tips_val.set('保存位置：' + export_dir)
+
+    def name_tips(self, evt):
+        if not evt:
+            return
+        name = self.combobox_name1.get()
+        name += self.combobox_name2.get()
+        name += self.combobox_name3.get()
+        name += self.combobox_name4.get()
+
+        name = name.replace('|自增编号|', '编号') \
+            .replace('|连接符|', ' - ') \
+            .replace('|原文件名|', '原文件名') \
+            .replace('|后缀名|', '.后缀') \
+            .strip()
+
+        self.entry_tips_val.set('文件名格式：%s' % name)
+
+    def choose_export_dir(self, evt):
+        if not evt:
+            return
         directory = filedialog.askdirectory()
         if directory:
-            self.entry_export_dir_val.set(directory)
+            self.entry_save_position_val.set(directory)
+        self.dir_tips(None)
 
-    def export(self):
-        # 没有选择任何项目的情况下
-        if (check_var1.get() == 0 and check_var1.get() == 0 and check_var1.get() == 0):
-            s = '您还没选择任语言'
-        else:
-            s1 = "Python" if check_var1.get() == 1 else ""
-            s2 = "C语言" if check_var1.get() == 1 else ""
-            s3 = "Java" if check_var1.get() == 1 else ""
-            s = "您选择了%s %s %s" % (s1, s2, s3)
-
-    def remove_list_item(self):
+    def remove_list_item(self, evt):
+        if not evt:
+            return
         if len(self.main_listbox.curselection()) == 0:
             showwarning('错误', '没有选中任何条目')
+            self.entry_tips_val.set('没有从列表中移除任何文件')
         else:
+            success = 0
             remove_index_list = []
             for index in self.main_listbox.curselection():
                 remove_index_list.append(index)
@@ -249,6 +282,9 @@ class Application(ApplicationGUI):
 
             for file_path in remove_file_list:
                 self.file_list.remove(file_path)
+                success += 1
+
+            self.entry_tips_val.set('已从列表移除{0}个文件'.format(success))
 
     def add_file_list(self, files: list):
         success = 0
@@ -268,9 +304,12 @@ class Application(ApplicationGUI):
             self.main_listbox.insert('end', str(self.file_index).rjust(bit, '0') + '|-' + file)  # 从最后一个位置开始加入值
             self.file_list.append(file)
             success += 1
-        showinfo('添加结果', '添加成功{0}个'.format(success))
+        showinfo('添加结果', '成功添加{0}个docx文件'.format(success))
+        self.entry_tips_val.set('成功添加{0}个docx文件，失败{1}个'.format(success, len(files) - success))
 
-    def choose_file(self):
+    def choose_file(self, evt):
+        if not evt:
+            return
         files_tuple = filedialog.askopenfilename(title='请选择docx文件', filetypes=[('Word', '.docx')],
                                                  defaultextension='.docx',
                                                  multiple=True)
@@ -281,7 +320,9 @@ class Application(ApplicationGUI):
                     file_list.append(file)  # 添加到列表中
             self.add_file_list(file_list)
 
-    def choose_dir(self):
+    def choose_dir(self, evt):
+        if not evt:
+            return
         is_choose_son = askyesno('选择文件夹', '选择文件夹时是否选择子文件夹内的文件？')
         directory = filedialog.askdirectory()
         if directory:
@@ -296,6 +337,167 @@ class Application(ApplicationGUI):
                     if file_check(file_path):
                         file_list.append(file_path)  # 添加到列表中
             self.add_file_list(file_list)
+
+    def export(self, evt):
+        if not evt:
+            return
+
+        export_dir_choose = self.combobox_save_path.get()
+        print('导出位置：', export_dir_choose)
+
+        try:
+            export_dir_choose = self.cb_save_position['value'].index(export_dir_choose) + 1
+        except ValueError:
+            showwarning('出错', '保存方式参数错误')
+            return
+
+        print('导出方式：', export_dir_choose)
+
+        export_dir = self.entry_save_position_val.get()
+        print('导出目录：', export_dir)
+
+        if export_dir_choose == self.cb_save_position['value'][2]:
+            if not (export_dir and os.path.isdir(export_dir)):
+                showwarning('导出时遇到问题', '保存位置未设置文件夹，请设置保存文件夹或设置其他保存位置')
+                return
+
+        name = self.combobox_name1.get()
+        name += self.combobox_name2.get()
+        name += self.combobox_name3.get()
+        name += self.combobox_name4.get()
+        print('名字规则：', name)
+        if not name.endswith('|后缀名|'):
+            if not askyesno('提示', '文件名最好以“|后缀名|”结尾，否则可能导致无法识别，是否继续？'):
+                return
+
+        export_type = []
+        if self.che_text.get():
+            export_type.append('文本')
+        if self.che_table.get():
+            export_type.append('表格')
+        if self.che_image.get():
+            export_type.append('图片')
+        if self.che_attachment.get():
+            export_type.append('附件')
+        if self.che_combine.get():
+            export_type.append('合并')
+        if self.che_info.get():
+            export_type.append('信息')
+
+        print('导出类型：', export_type)
+
+        is_delete = self.che_delete_raw.get()
+        print('导出后删除原文件：', is_delete)
+
+        print('导出文件：', self.file_list)
+
+        parameter = {
+            '保存方式': export_dir_choose,
+            '保存目录': export_dir,
+            '文件名格式': name,
+            '导出类型': export_type,
+            '导出后删除原文件': bool(is_delete),
+            '导出文件': self.file_list
+        }
+
+        res = self.start_export(parameter)
+        print('导出结果：', res)
+        self.entry_tips_val.set(res)
+
+    def start_export(self, parameter):
+        export_dialog = Export(master=self.master, parameter=parameter)
+        self.master.wait_window(export_dialog)
+        return export_dialog.result
+
+
+class Export(ExportGUI):
+
+    def __init__(self, master=None, parameter=None, **kw):
+        super().__init__(**kw)
+        self.master = master
+        self.transient(master)  # 设置为对话框
+        self.grab_set()
+
+        self.exit_time = 0  # 点两次退出
+
+        self.result = '未完成'
+
+        self.protocol('WM_DELETE_WINDOW', self.exit)
+
+        # **********************************************************************
+        self.file_list = []
+        self.export_type = ['文本', '表格', '图片', '附件', '合并', '信息']
+        self.filename_format = '|自增编号||连接符||原文件名||后缀名|'
+        self.save_way = None
+        self.save_dir = None
+        self.delete_raw_file = False
+        # **********************************************************************
+
+        is_exit = False
+        if isinstance(parameter, dict):
+            obj = parameter.get('导出文件')
+            if isinstance(obj, list) and obj:
+                self.file_list = obj
+            else:
+                self.result = '没有文件需要处理'
+                is_exit = True
+
+            obj = parameter.get('导出后删除原文件')
+            if isinstance(obj, bool):
+                self.delete_raw_file = obj
+            else:
+                self.result = '导出后删除原文件参数错误'
+                is_exit = True
+
+            obj = parameter.get('导出类型')
+            if isinstance(obj, list):
+                self.export_type = obj
+            else:
+                self.result = '导出类型参数错误'
+                is_exit = True
+
+            obj = parameter.get('文件名格式')
+            if isinstance(obj, str):
+                self.filename_format = obj
+            else:
+                self.result = '文件名参数错误'
+                is_exit = True
+
+            obj = parameter.get('保存方式')
+            if isinstance(obj, int):
+                self.save_way = obj
+            else:
+                self.result = '保存方式参数错误'
+                is_exit = True
+
+            obj = parameter.get('保存目录')
+            if isinstance(obj, str):
+                self.save_dir = obj
+            else:
+                self.result = '保存目录参数错误'
+                is_exit = True
+
+        else:
+            self.result = '参数不正确'
+            is_exit = True
+
+        if is_exit:
+            self.after(1000, self.destroy)
+        else:
+            self.dispose()
+
+    def dispose(self):
+        pass
+
+    def exit(self):
+        current_time = int(time.time())
+        if current_time - self.exit_time > 3:
+            print('再点一次退出')
+            self.exit_time = current_time
+        else:
+            self.result = '取消导出'
+            self.destroy()
+            print('退出')
 
 
 def run():
