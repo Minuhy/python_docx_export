@@ -1,46 +1,20 @@
-import logging
+import log
 import os
 import tkinter as tk
-from datetime import datetime
 from tkinter import filedialog
 from tkinter.messagebox import askyesno, showinfo, showwarning
 
 import export
 from gui import ApplicationGUI
 
+# 版本
 v = 'v 0.1.0.1'
-logger = None
 
+# 日志对象
+logger = log.Logger().log_create()
 
-def log_create():
-    # APP根目录
-    app_path = os.path.dirname(os.path.abspath(__file__))
-    # 日志
-    func_logger = logging.getLogger()
-
-    # 日志目录路径（一天一个文件）
-    dt = datetime.now()
-    log_file_path = os.path.abspath(app_path + "/logs/app" + dt.strftime('%j').rjust(4, '0') + ".log")
-
-    # 处理器
-    console_handler = logging.StreamHandler()  # 控制台处理器
-    file_handler = logging.FileHandler(log_file_path, mode='a+', encoding="UTF-8")  # 文件处理器
-
-    # 日志格式
-    formatter = logging.Formatter(fmt="%(asctime)s |-%(levelname)s in %(name)s@%(funcName)s - %(message)s",
-                                  datefmt="%Y-%m-%d %H:%M:%S")
-    console_handler.setFormatter(formatter)
-    file_handler.setFormatter(formatter)
-
-    # 日志等级
-    func_logger.setLevel(logging.DEBUG)
-
-    # 将处理器添加至日志器中
-    func_logger.addHandler(console_handler)
-    func_logger.addHandler(file_handler)
-
-    print('日志位置：', log_file_path)
-    return func_logger
+# APP根目录
+app_path = os.path.dirname(os.path.abspath(__file__))
 
 
 def file_check(file_path: str):
@@ -131,7 +105,7 @@ class Application(ApplicationGUI):
         # 选择文件夹
         self.btn_choose_position.bind('<Button>', self.choose_export_dir)
         # 导出按钮
-        self.btn_export.bind('<Button>', self.export)
+        self.btn_export.bind('<Button-1>', self.export)
         # ---------------------------------------------------------------------------
         self.bind_cb_evt(self.cb_name_part1, self.name_tips)
         self.bind_cb_evt(self.cb_name_part2, self.name_tips)
@@ -404,12 +378,14 @@ class Application(ApplicationGUI):
 
         res = self.start_export(parameter)
         logger.debug('导出结果：%s', str(res))
+
         self.entry_tips_val.set(res)
 
     def start_export(self, parameter):
         export.export_dialog = export.Export(master=self.master, parameter=parameter)
         self.master.wait_window(export.export_dialog)
         return export.export_dialog.result
+
 
 def run():
     root = tk.Tk()
@@ -430,5 +406,4 @@ def run():
 
 
 if __name__ == '__main__':
-    logger = log_create()
     run()

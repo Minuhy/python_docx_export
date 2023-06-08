@@ -1,14 +1,21 @@
 import os
 import time
+from random import Random
+from tkinter.messagebox import askyesno
+
+import log
 from multiprocessing import Pool
 from threading import Thread
-
-# {'文件名':['导出文件1','导出文件2',......]}
 from gui import ExportGUI
 
+# {'文件名':['导出文件1','导出文件2',......]}
 success_file_dict = {}
+fail_file_list = []
 
 export_dialog = None
+
+# 日志对象
+logger = log.Logger().log_create()
 
 
 class CopeException(BaseException):
@@ -18,27 +25,32 @@ class CopeException(BaseException):
         self.e = e
 
 
-def dispose_error_callback(p: BaseException):
-    if not isinstance(p, CopeException):
+def dispose_error_callback(e: BaseException):
+    """
+    异常回调
+    :param e: 异常对象
+    :return:  None
+    """
+    if not isinstance(e, CopeException):
         return
     if isinstance(export_dialog, Export):
-        export_dialog.show_progress(p.index, '处理{0}时出错：{1}'.format(p.file, p.e))
+        export_dialog.show_progress(e.index, '错误 -> {0} | {1}'.format(e.file, e.e))
+        fail_file_list.append(e.file)
 
 
 def dispose_callback(p: dict):
-    state = p.get('ok')
+    state = p.get('state')
     file = p.get('file')
     child = p.get('child')
     index = p.get('index')
 
     msg = ''
     if file:
-        msg = '正在处理：{0}'.format(file)
         if state:
             success_file_dict[file] = child
-            msg += ' -> 成功'
+            msg = '成功 -> ' + file
         else:
-            msg += ' -> 失败'
+            msg = '失败 -> ' + file
 
     if isinstance(export_dialog, Export):
         export_dialog.show_progress(index, msg)
@@ -46,11 +58,16 @@ def dispose_callback(p: dict):
 
 def dispose(index: int, file: str, parameter: dict):
     try:
-        print('处理文件：', file, parameter)
-        time.sleep(1)
+        print(index, '处理文件：', file, parameter)
+        time.sleep(1 * Random().random())
+        if index % 20 == 0:
+            if askyesno('提示', '是否覆盖？'):
+                print('覆盖')
+            else:
+                print('取消覆盖')
         return {
-            'ok': 'success',
             'index': index,
+            'state': 'success',
             'file': file,
             'child': ['1', '2']
         }
@@ -62,7 +79,6 @@ def dispose(index: int, file: str, parameter: dict):
 def start_task(file_list, parameter):
     p = Thread(target=run, args=(file_list, parameter))  # 实例化进程对象
     p.start()
-    print('===============================')
 
 
 def run(file_list, parameter):
@@ -92,10 +108,9 @@ class Export(ExportGUI):
         self.grab_set()
 
         self.exit_time = 0  # 点两次退出
+        self.pr_val = 0  # 导出进度
 
         self.result = '未完成'
-
-        self.protocol('WM_DELETE_WINDOW', self.exit)
 
         # **********************************************************************
         self.file_list = []
@@ -105,10 +120,34 @@ class Export(ExportGUI):
         self.save_dir = None
         self.delete_raw_file = False
         # **********************************************************************
-        # {'文件名':['导出文件1','导出文件2',......]}
-        self.success_file_dict = {}
-        # **********************************************************************
 
+        check = self.check_init(parameter)
+
+        self.protocol('WM_DELETE_WINDOW', self.exit)
+
+        self.file_list_len = len(self.file_list)
+
+        parameter = {
+            '保存方式': self.save_way,
+            '保存目录': self.save_dir,
+            '文件名格式': self.filename_format,
+            '导出类型': self.export_type,
+            '导出后删除原文件': self.delete_raw_file
+        }
+
+        if check:
+
+            start_task(file_list=self.file_list, parameter=parameter)
+            self.result = success_file_dict
+        else:
+            self.after_destroy()
+
+    def check_init(self, parameter):
+        """
+        检查参数和初始化参数
+        :param parameter: 传入参数
+        :return: 继续执行(True)或停止执行(False)
+        """
         is_exit = False
         if isinstance(parameter, dict):
             obj = parameter.get('导出文件')
@@ -145,43 +184,39 @@ class Export(ExportGUI):
         else:
             self.result = '参数不正确'
             is_exit = True
-
-        parameter = {
-            '保存方式': self.save_way,
-            '保存目录': self.save_dir,
-            '文件名格式': self.filename_format,
-            '导出类型': self.export_type,
-            '导出后删除原文件': self.delete_raw_file
-        }
-
-        self.file_list_len = len(self.file_list)
-
-        if not is_exit:
-            start_task(file_list=self.file_list, parameter=parameter)
-            self.result = success_file_dict
-        else:
-            self.after_destroy()
+        return not is_exit
 
     def after_destroy(self):
         self.after(1000, self.destroy)
 
     def show_progress(self, current, message):
-        current_percent = current / self.file_list_len * 100
+        if self.file_list_len != 0:
+            current_percent = current / self.file_list_len * 100
+        else:
+            current_percent = 0
+        if current_percent > self.pr_val:
+            self.pr_val = current_percent
+        else:
+            current_percent = self.pr_val
         current_time = int(time.time())
         if current_time - self.exit_time <= 3:
             self.lb_tips_val.set('再点一次退出')
+            self.lb_tips.configure(background="#f4984d")
+            self.lb_tips.configure(foreground="#ffffff")
         else:
             self.lb_tips_val.set('正在处理：{0}%'.format(current_percent))
+            self.lb_tips.configure(background="#f0f0f0")
+            self.lb_tips.configure(foreground="#000000")
         self.entry_info_var.set(message)
         self.pb_main_val.set(current_percent)
 
     def exit(self):
         current_time = int(time.time())
         if current_time - self.exit_time > 3:
-            print('再点一次退出')
+            logger.debug('再点一次退出')
             self.lb_tips_val.set('再点一次退出')
             self.exit_time = current_time
         else:
+            logger.debug('取消导出')
             self.result = '取消导出'
             self.destroy()
-            print('退出')
