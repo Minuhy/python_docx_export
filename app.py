@@ -1,42 +1,46 @@
 import logging
 import os
-import time
 import tkinter as tk
 from datetime import datetime
 from tkinter import filedialog
 from tkinter.messagebox import askyesno, showinfo, showwarning
 
-from gui import ApplicationGUI, ExportGUI
+import export
+from gui import ApplicationGUI
 
 v = 'v 0.1.0.1'
+logger = None
 
-# APP根目录
-app_path = os.path.dirname(os.path.abspath(__file__))
-# 日志
-logger = logging.getLogger()
 
-# 日志目录路径（一天一个文件）
-dt = datetime.now()
-log_file_path = os.path.abspath(app_path + "/logs/app" + dt.strftime('%j').rjust(4, '0') + ".log")
+def log_create():
+    # APP根目录
+    app_path = os.path.dirname(os.path.abspath(__file__))
+    # 日志
+    func_logger = logging.getLogger()
 
-# 处理器
-console_handler = logging.StreamHandler()  # 控制台处理器
-file_handler = logging.FileHandler(log_file_path, mode='a+', encoding="UTF-8")  # 文件处理器
+    # 日志目录路径（一天一个文件）
+    dt = datetime.now()
+    log_file_path = os.path.abspath(app_path + "/logs/app" + dt.strftime('%j').rjust(4, '0') + ".log")
 
-# 日志格式
-formatter = logging.Formatter(fmt="%(asctime)s |-%(levelname)s in %(name)s@%(funcName)s - %(message)s",
-                              datefmt="%Y-%m-%d %H:%M:%S")
-console_handler.setFormatter(formatter)
-file_handler.setFormatter(formatter)
+    # 处理器
+    console_handler = logging.StreamHandler()  # 控制台处理器
+    file_handler = logging.FileHandler(log_file_path, mode='a+', encoding="UTF-8")  # 文件处理器
 
-# 日志等级
-logger.setLevel(logging.DEBUG)
+    # 日志格式
+    formatter = logging.Formatter(fmt="%(asctime)s |-%(levelname)s in %(name)s@%(funcName)s - %(message)s",
+                                  datefmt="%Y-%m-%d %H:%M:%S")
+    console_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
 
-# 将处理器添加至日志器中
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
+    # 日志等级
+    func_logger.setLevel(logging.DEBUG)
 
-print('日志位置：', log_file_path)
+    # 将处理器添加至日志器中
+    func_logger.addHandler(console_handler)
+    func_logger.addHandler(file_handler)
+
+    print('日志位置：', log_file_path)
+    return func_logger
 
 
 def file_check(file_path: str):
@@ -310,9 +314,10 @@ class Application(ApplicationGUI):
     def choose_file(self, evt):
         if not evt:
             return
-        files_tuple = filedialog.askopenfilename(title='请选择docx文件', filetypes=[('Word', '.docx')],
-                                                 defaultextension='.docx',
-                                                 multiple=True)
+        files_tuple = filedialog \
+            .askopenfilename(title='请选择docx文件', filetypes=[('Word', '.docx')],
+                             defaultextension='.docx',
+                             multiple=True)
         if files_tuple:
             file_list = []
             for file in files_tuple:
@@ -341,9 +346,8 @@ class Application(ApplicationGUI):
     def export(self, evt):
         if not evt:
             return
-
         export_dir_choose = self.combobox_save_path.get()
-        print('导出位置：', export_dir_choose)
+        logger.debug('导出位置：%s', export_dir_choose)
 
         try:
             export_dir_choose = self.cb_save_position['value'].index(export_dir_choose) + 1
@@ -351,10 +355,10 @@ class Application(ApplicationGUI):
             showwarning('出错', '保存方式参数错误')
             return
 
-        print('导出方式：', export_dir_choose)
+        logger.debug('导出方式：%s', export_dir_choose)
 
         export_dir = self.entry_save_position_val.get()
-        print('导出目录：', export_dir)
+        logger.debug('导出目录：%s', export_dir)
 
         if export_dir_choose == self.cb_save_position['value'][2]:
             if not (export_dir and os.path.isdir(export_dir)):
@@ -365,7 +369,7 @@ class Application(ApplicationGUI):
         name += self.combobox_name2.get()
         name += self.combobox_name3.get()
         name += self.combobox_name4.get()
-        print('名字规则：', name)
+        logger.debug('名字规则：%s', name)
         if not name.endswith('|后缀名|'):
             if not askyesno('提示', '文件名最好以“|后缀名|”结尾，否则可能导致无法识别，是否继续？'):
                 return
@@ -384,12 +388,10 @@ class Application(ApplicationGUI):
         if self.che_info.get():
             export_type.append('信息')
 
-        print('导出类型：', export_type)
+        logger.debug('导出类型：%s', str(export_type))
 
         is_delete = self.che_delete_raw.get()
-        print('导出后删除原文件：', is_delete)
-
-        print('导出文件：', self.file_list)
+        logger.debug('导出后删除原文件：%s', str(is_delete))
 
         parameter = {
             '保存方式': export_dir_choose,
@@ -401,117 +403,26 @@ class Application(ApplicationGUI):
         }
 
         res = self.start_export(parameter)
-        print('导出结果：', res)
+        logger.debug('导出结果：%s', str(res))
         self.entry_tips_val.set(res)
 
     def start_export(self, parameter):
-        export_dialog = Export(master=self.master, parameter=parameter)
-        self.master.wait_window(export_dialog)
-        return export_dialog.result
-
-
-class Export(ExportGUI):
-
-    def __init__(self, master=None, parameter=None, **kw):
-        super().__init__(**kw)
-        self.master = master
-        self.transient(master)  # 设置为对话框
-        self.grab_set()
-
-        self.exit_time = 0  # 点两次退出
-
-        self.result = '未完成'
-
-        self.protocol('WM_DELETE_WINDOW', self.exit)
-
-        # **********************************************************************
-        self.file_list = []
-        self.export_type = ['文本', '表格', '图片', '附件', '合并', '信息']
-        self.filename_format = '|自增编号||连接符||原文件名||后缀名|'
-        self.save_way = None
-        self.save_dir = None
-        self.delete_raw_file = False
-        # **********************************************************************
-
-        is_exit = False
-        if isinstance(parameter, dict):
-            obj = parameter.get('导出文件')
-            if isinstance(obj, list) and obj:
-                self.file_list = obj
-            else:
-                self.result = '没有文件需要处理'
-                is_exit = True
-
-            obj = parameter.get('导出后删除原文件')
-            if isinstance(obj, bool):
-                self.delete_raw_file = obj
-            else:
-                self.result = '导出后删除原文件参数错误'
-                is_exit = True
-
-            obj = parameter.get('导出类型')
-            if isinstance(obj, list):
-                self.export_type = obj
-            else:
-                self.result = '导出类型参数错误'
-                is_exit = True
-
-            obj = parameter.get('文件名格式')
-            if isinstance(obj, str):
-                self.filename_format = obj
-            else:
-                self.result = '文件名参数错误'
-                is_exit = True
-
-            obj = parameter.get('保存方式')
-            if isinstance(obj, int):
-                self.save_way = obj
-            else:
-                self.result = '保存方式参数错误'
-                is_exit = True
-
-            obj = parameter.get('保存目录')
-            if isinstance(obj, str):
-                self.save_dir = obj
-            else:
-                self.result = '保存目录参数错误'
-                is_exit = True
-
-        else:
-            self.result = '参数不正确'
-            is_exit = True
-
-        if is_exit:
-            self.after(1000, self.destroy)
-        else:
-            self.dispose()
-
-    def dispose(self):
-        pass
-
-    def exit(self):
-        current_time = int(time.time())
-        if current_time - self.exit_time > 3:
-            print('再点一次退出')
-            self.exit_time = current_time
-        else:
-            self.result = '取消导出'
-            self.destroy()
-            print('退出')
-
+        export.export_dialog = export.Export(master=self.master, parameter=parameter)
+        self.master.wait_window(export.export_dialog)
+        return export.export_dialog.result
 
 def run():
     root = tk.Tk()
     Application(master=root, version=v)
 
-    def closeWindow():
+    def close_window():
         ans = askyesno(title='提示', message='是否关闭窗口？')
         if ans:
             root.destroy()
         else:
             return
 
-    root.protocol('WM_DELETE_WINDOW', closeWindow)
+    root.protocol('WM_DELETE_WINDOW', close_window)
 
     root.title('导出docx')
     root.iconbitmap('images/icon.ico')
@@ -519,4 +430,5 @@ def run():
 
 
 if __name__ == '__main__':
+    logger = log_create()
     run()
