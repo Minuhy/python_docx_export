@@ -12,6 +12,8 @@ from tkinter.messagebox import askyesno, showinfo, showwarning
 from gui import ApplicationGUI, ExportGUI
 
 # 版本
+from oletools import oleobj
+
 v = 'v 0.1.0.1'
 
 # 日志对象
@@ -331,6 +333,11 @@ class Application(ApplicationGUI):
             self.add_file_list(file_list)
 
     def export(self, evt):
+        """
+        导出按钮事件，负责校验参数，整合参数
+        :param evt: 事件
+        :return: None
+        """
         if not evt:
             return
         export_dir_choose = self.combobox_save_path.get()
@@ -363,17 +370,17 @@ class Application(ApplicationGUI):
 
         export_type = []
         if self.che_text.get():
-            export_type.append('文本')
+            export_type.append('text')
         if self.che_table.get():
-            export_type.append('表格')
+            export_type.append('table')
         if self.che_image.get():
-            export_type.append('图片')
+            export_type.append('image')
         if self.che_attachment.get():
-            export_type.append('附件')
+            export_type.append('attachment')
         if self.che_combine.get():
-            export_type.append('合并')
+            export_type.append('combine')
         if self.che_info.get():
-            export_type.append('信息')
+            export_type.append('info')
 
         logger.debug('导出类型：%s', str(export_type))
 
@@ -389,6 +396,7 @@ class Application(ApplicationGUI):
             'list': self.file_list  # 导出文件
         }
 
+        # 开始导出
         self.start_export(parameter)
 
     # ====================================================================================
@@ -400,14 +408,24 @@ class Application(ApplicationGUI):
         :return: None
         """
         print('启动界面')
+        # 初始化导出界面参数
         self.is_e_pause = False
         self.is_e_stop = False
         self.e_progress = 0
-        self.e_total_task = len(parameter.get('导出文件'))
+        self.e_total_task = len(parameter.get('list'))
+        # 初始化界面
         self.export_ui = ExportGUI(self.master)
+        # 中间文本框初始化
+        self.export_ui.txt_d_result_show.delete('1.0', 'end')
         self.export_ui.txt_d_result_show.insert('end', '准备导出......\n')
+        # 切换到进度条界面
         self.export_ui.switch_func('pb')
-
+        # 重置提示信息
+        self.export_ui.lb_d_tips_var.set('''处理进度：∞%''')
+        # 重置进度和选项
+        self.export_ui.pd_d_main_var.set(0)  # 进度
+        self.export_ui.cb_d_all_var.set(0)  # 一律如此选项
+        # 绑定点击事件
         self.export_ui.btn_d_rename.bind('<Button-1>', self.e_btn_rename)
         self.export_ui.btn_d_left.bind('<Button-1>', self.e_btn_left)
         self.export_ui.btn_d_right.bind('<Button-1>', self.e_btn_right)
@@ -415,19 +433,54 @@ class Application(ApplicationGUI):
         Thread(target=self.run, args=(parameter,)).start()
 
     def e_btn_rename(self, evt):
+        """
+        点击重命名按钮事件
+        :param evt: 事件
+        :return: None
+        """
         if not evt:
             return
         self.e_rename = 1
 
     def e_btn_left(self, evt):
+        """
+        点击“暂停”按钮
+        :param evt: 事件
+        :return: None
+        """
         if not evt:
             return
         self.e_left = 1
 
     def e_btn_right(self, evt):
+        """
+        点击“取消”按钮
+        :param evt: 事件
+        :return: None
+        """
         if not evt:
             return
         self.e_right = 1
+
+    def e_total(self, msg):
+        """
+        切换到提示界面，并弹出提示信息
+        :param msg: 提示信息
+        :return: None
+        """
+        self.export_ui.switch_func('ta')
+        self.export_ui.txt_d_ask_show.delete('1.0', 'end')
+        self.export_ui.txt_d_ask_show.insert('end', msg)
+
+    def e_tip(self, msg):
+        """
+        切换到提示界面，并弹出提示信息
+        :param msg: 提示信息
+        :return: None
+        """
+        self.export_ui.switch_func('tp')
+        self.export_ui.txt_d_ask_show.delete('1.0', 'end')
+        self.export_ui.txt_d_ask_show.insert('end', msg)
 
     def show_progress(self, current, file, state):
         """
@@ -461,185 +514,322 @@ class Application(ApplicationGUI):
 
     def run(self, parameter):
         print('开始处理任务')
-        parameter = {
-            '保存方式': export_dir_choose,
-            '保存目录': export_dir,
-            '文件名格式': name,
-            '导出类型': export_type,
-            '导出后删除原文件': bool(is_delete),
-            '导出文件': self.file_list
-        }
+
+        success = 0
+        sub_file_count = 0
+
         # 处理参数
-        file_list = parameter.get('导出文件')
+        file_list = parameter.get('list')
         if not isinstance(file_list, list):
             print('参数错误')
             return
 
+        export_list = {}
+
         for index, file in enumerate(file_list):
+            time.sleep(0.1)
+            # 停止
             if self.is_e_stop:
+                logger.debug('停止')
                 return
+            # 暂停
             while self.is_e_pause:
                 continue
-            print('处理文件：', file)
-            self.dispose(file, parameter)
-            time.sleep(0.2)
-            self.show_progress(index, file, '成功')
+            logger.debug('处理文件：%s', file)
+            try:
+                sub_file_list = self.dispose(index, file, parameter)
+                if not sub_file_list:
+                    sub_file_list = []
+            except Exception as e:
+                logger.error('导出文件时出错', e)
+                self.show_progress(index, file, '失败\t'.rjust(6, '>'))
+                continue
+            logger.debug('成功 %s', file)
+            # 统计计数
+            sub_count = len(sub_file_list)
+            success += 1
+            sub_file_count += sub_count
+            # 保存到总的导出列表中
+            export_list[file] = sub_file_list
+            self.show_progress(index, file, ('成功 %s\t' % str(sub_count)).rjust(6, '>'))
         if len(file_list) == 0:
+            logger.debug('没有需要处理的文件')
             showinfo('提示', '没有需要处理的文件')
-        self.master.after(3000, self.export_ui.close)
+
+        # 总结提示
+        self.e_tip('导出完成\n成功导出%d个docx文档\n生成子文档%d个\n失败%d个' % (success, sub_file_count, len(file_list) - success))
+
         self.entry_tips_val.set('任务完成')
-        print('任务完成')
+        logger.debug('任务完成')
 
-    def dispose(self, docx_file: str, output_dir: str, name_format: str,
-                export_type=None,
-                is_del_raw=False,
-                is_print=False):
+    @staticmethod
+    def get_new_path(i, seek, file_path, file_name_format, out_dir):
+        """
+        获取一个新的文件路径
+        :param i: 文件编号
+        :param seek: 导出附件编号
+        :param file_path: 文件名（路径）
+        :param out_dir: 输出目录
+        :param file_name_format: 文件名格式
+        :return: 新的文件路径
+        """
+        if not os.path.isdir(out_dir):
+            out_dir = os.path.dirname(os.path.abspath(out_dir))  # 获取导出路径
+        if file_name_format is None:
+            file_name_format = '|自增编号||连接符||原文件名||后缀名|'
+        number = str(i).rjust(4, '0') + '.' + str(seek).rjust(2, '0')  # |自增编号|，不够前面添0
+        raw_file_name = os.path.basename(file_path)  # |原文件名|
+        suffix = ''  # |后缀名|
+        if '.' in raw_file_name:
+            name_part = raw_file_name.split('.')
+            part_count = len(name_part)
+            suffix = name_part[-1]  # 后缀名
+            raw_file_name = '.'.join(name_part[:(part_count - 1)])  # 前面的，这么处理是因为有的文件名中有多个 .
+        link_char = ' - '  # |连接符|
+        return out_dir + '/' + file_name_format.replace('|自增编号|', number) \
+            .replace('|连接符|', link_char) \
+            .replace('|原文件名|', raw_file_name) \
+            .replace('|后缀名|', '.' + suffix) \
+            .strip()  # 拼接路径
 
-        parameter = {
-            '保存方式': export_dir_choose,
-            '保存目录': export_dir,
-            '文件名格式': name,
-            '导出类型': export_type,
-            '导出后删除原文件': bool(is_delete),
-            '导出文件': self.file_list
-        }
+    @staticmethod
+    def re_decode(s: str, encoding: str = 'gbk'):
+        """
+        重新解码，解决oleobj对中文乱码的问题
+        :param s: 原始字符串
+        :param encoding: 新的解码编码，默认为 GBK
+        :return: 新的字符串
+        """
+        i81 = s.encode('iso-8859-1')
+        return i81.decode(encoding)
+
+    def dispose(self, index: int, docx_file: str, parameter):
+        """
+        处理docx文档
+        :param index: 索引，文档级
+        :param docx_file: 文档路径
+        :param parameter: 其他参数
+        :return: 文档导出列表
+        """
+        save_way = parameter.get('way')
+        output_dir = parameter.get('dir')
+        name_format = parameter.get('name')
+        export_type = parameter.get('type')
+        is_del_raw = parameter.get('del')
+
+        # 导出过程中是否出错
+        is_error = False
+
+        # 导出的文件列表
+        export_files = []
+        # 从1开始
+        index += 1
+
+        if not docx_file.endswith('.docx'):
+            logger.debug('不支持的文件类型')
+            return
+
+            # 导出方式设置
+        if save_way == 1:
+            output_dir = docx_file[:-5]
+        elif save_way == 2:
+            output_dir = os.path.dirname(docx_file)
+        else:
+            if output_dir:
+                if not os.path.isdir(output_dir):
+                    os.makedirs(output_dir)
+            else:
+                logger.error('导出路径不正确：' + docx_file)
+                return export_files
+
+        output_dir = output_dir.replace('\\', '/')
+
+        # 创建导出文件夹
+        if not os.path.isdir(output_dir):
+            logger.debug('创建导出文件夹：%s', output_dir)
+            os.mkdir(output_dir)
+            if os.path.isdir(output_dir):
+                logger.debug('创建导出文件夹成功')
+            else:
+                logger.debug('创建导出文件夹失败')
 
         # 打开docx文档
-        docx_document = docx.Document(docx_file)
-        print('打开文档完成')
+        try:
+            docx_document = docx.Document(docx_file)
+        except Exception as e:
+            logger.error('打开文档时出错', e)
+            self.remove_empty_dir(output_dir)
+            return
+        logger.debug('打开文档完成')
 
         # 文档信息
-        docx_properties = docx_document.core_properties
-        all_properties = ''
-        all_properties += '作者：' + str(docx_properties.author) + '\n'
-        all_properties += '类别：' + str(docx_properties.category) + '\n'
-        all_properties += '注释：' + str(docx_properties.comments) + '\n'
-        all_properties += '内容状态：' + str(docx_properties.content_status) + '\n'
-        all_properties += '创建时间：' + str(docx_properties.created) + '\n'
-        all_properties += '标识符：' + str(docx_properties.identifier) + '\n'
-        all_properties += '关键字：' + str(docx_properties.keywords) + '\n'
-        all_properties += '语言：' + str(docx_properties.language) + '\n'
-        all_properties += '最后修改者：' + str(docx_properties.last_modified_by) + '\n'
-        all_properties += '上次打印：' + str(docx_properties.last_printed) + '\n'
-        all_properties += '修改时间：' + str(docx_properties.modified) + '\n'
-        all_properties += '修订：' + str(docx_properties.revision) + '\n'
-        all_properties += '主题：' + str(docx_properties.subject) + '\n'
-        all_properties += '标题：' + str(docx_properties.title) + '\n'
-        all_properties += '版本：' + str(docx_properties.version) + '\n'
-        if is_print:
-            print('文档信息：', all_properties.replace('\n', '， '))
+        if 'info' in export_type:
+            docx_properties = docx_document.core_properties
+            all_properties = '作者\t' + str(docx_properties.author) + '\n'
+            all_properties += '类别\t' + str(docx_properties.category) + '\n'
+            all_properties += '注释\t' + str(docx_properties.comments) + '\n'
+            all_properties += '内容状态\t' + str(docx_properties.content_status) + '\n'
+            all_properties += '创建时间\t' + str(docx_properties.created) + '\n'
+            all_properties += '标识符\t' + str(docx_properties.identifier) + '\n'
+            all_properties += '关键字\t' + str(docx_properties.keywords) + '\n'
+            all_properties += '语言\t' + str(docx_properties.language) + '\n'
+            all_properties += '最后修改者\t' + str(docx_properties.last_modified_by) + '\n'
+            all_properties += '上次打印\t' + str(docx_properties.last_printed) + '\n'
+            all_properties += '修改时间\t' + str(docx_properties.modified) + '\n'
+            all_properties += '修订\t' + str(docx_properties.revision) + '\n'
+            all_properties += '主题\t' + str(docx_properties.subject) + '\n'
+            all_properties += '标题\t' + str(docx_properties.title) + '\n'
+            all_properties += '版本\t' + str(docx_properties.version) + '\n'
+            logger.debug('文档信息：%s', all_properties.replace('\n', '， '))
 
-        # 导出文档信息
-        info_file_path = get_new_path(len(export_files) + 1, 'docx文档信息.txt')
-        with open(info_file_path, 'w', encoding='utf-8') as f:
-            f.write(all_properties)
-        export_files.append(info_file_path)
+            # 导出文档信息
+            info_file_path = self.get_new_path(index, len(export_files) + 1, '文档信息.txt', name_format, output_dir)
+            logger.debug('文档信息保存位置：%s', info_file_path)
+            with open(info_file_path, 'w', encoding='utf-8') as f:
+                f.write(all_properties)
+            export_files.append(info_file_path)
 
         # 所有文本
         all_text = ''
-        for paragraph in docx_document.paragraphs:
-            all_text += paragraph.text + ' '  # 段落之间用空格隔开
-        if is_print:
-            print('所有文本：', all_text)
+        if 'text' in export_type:
+            for paragraph in docx_document.paragraphs:
+                all_text += paragraph.text + ' '  # 段落之间用空格隔开
+            logger.debug('所有文本：%s', all_text)
+
+        # 所有表格
         all_table_text = ''
-        for table in docx_document.tables:
-            for cell in getattr(table, '_cells'):
-                all_table_text += cell.text + ' '  # 单元格之间用空格隔开
-        if is_print:
-            print('所有表格文本：', all_table_text)
+        if 'table' in export_type:
+            for table in docx_document.tables:
+                for cell in getattr(table, '_cells'):
+                    all_table_text += cell.text + '|'  # 单元格之间用 “|” 隔开
+            logger.debug('所有表格文本：%s', all_table_text)
 
         # 导出文本
-        text_file_path = get_new_path(len(export_files) + 1, 'docx文本.txt')
-        with open(text_file_path, 'w', encoding='utf-8') as f:
-            f.write(all_text)
-            f.write('\n')  # 换个行
-            f.write(all_table_text)
-        export_files.append(text_file_path)
+        if 'combine' in export_type:
+
+            combine_file_path = self.get_new_path(index, len(export_files) + 1, '文本和表格.txt', name_format, output_dir)
+            logger.debug('文档文本和表格保存位置：%s', combine_file_path)
+            with open(combine_file_path, 'w', encoding='utf-8') as f:
+                f.write(all_text)
+                f.write('\n')  # 换个行
+                f.write(all_table_text)
+            export_files.append(combine_file_path)
+        else:
+            text_file_path = self.get_new_path(index, len(export_files) + 1, '文本.txt', name_format, output_dir)
+            logger.debug('文档文本保存位置：%s', text_file_path)
+            with open(text_file_path, 'w', encoding='utf-8') as f:
+                f.write(all_text)
+            export_files.append(text_file_path)
+
+            table_file_path = self.get_new_path(index, len(export_files) + 1, '表格txt', name_format, output_dir)
+            logger.debug('文档表格保存位置：%s', table_file_path)
+            with open(table_file_path, 'w', encoding='utf-8') as f:
+                f.write(all_table_text)
+            export_files.append(table_file_path)
 
         # 遍历所有附件
-        docx_related_parts = docx_document.part.related_parts
-        for part in docx_related_parts:
-            part = docx_related_parts[part]
-            part_name = str(part.partname)  # 附件路径（partname）
-            if part_name.startswith('/word/media/') or part_name.startswith('/word/embeddings/'):  # 只导出这两个目录下的
+        if 'image' in export_type or 'attachment' in export_type:
+            docx_related_parts = docx_document.part.related_parts
+            for part in docx_related_parts:
+                part = docx_related_parts[part]
+                part_name = str(part.partname)  # 附件路径（partname）
+
+                # 只导出这两个目录下的
+                if not (part_name.startswith('/word/media/') or part_name.startswith('/word/embeddings/')):
+                    continue
+
                 # 构建导出路径
-                save_path = get_new_path(len(export_files) + 1, part.partname, output_dir)
+                save_path = self.get_new_path(index, len(export_files) + 1, part.partname, name_format, output_dir)
 
                 # ole 文件判断
                 # 不符合 .bin 作为后缀且文件名中有ole，则不被认为是OLE文件
                 if not (save_path.endswith('.bin') and 'ole' in save_path.lower()):
+                    # 如果没有支持图片导出
+                    if 'image' not in export_type:
+                        continue
+
                     # 直接写入文件
-                    if is_print:
-                        print('DOCX 导出路径：', save_path)
+                    logger.debug('图片导出路径：%s', save_path)
                     with open(save_path, 'wb') as f:
                         f.write(part.blob)
                     export_files.append(save_path)  # 记录文件
-                else:
-                    # 将字节数组传递给oleobj处理
-                    for ole in oleobj.find_ole(save_path, part.blob):
-                        if ole is None:  # 没有找到 OLE 文件，跳过
+
+                    continue
+
+                # 如果没有支持附件导出
+                if 'attachment' not in export_type:
+                    continue
+
+                # 将字节数组传递给oleobj处理
+                for ole in oleobj.find_ole(save_path, part.blob):
+                    if ole is None:  # 没有找到 OLE 文件，跳过
+                        continue
+
+                    for path_parts in ole.listdir():  # 遍历OLE中的文件
+
+                        # 判断是不是[1]Ole10Native，使用列表推导式忽略大小写，不是的话就不要继续了
+                        if '\x01ole10native'.casefold() not in [path_part.casefold() for path_part in
+                                                                path_parts]:
                             continue
 
-                        for path_parts in ole.listdir():  # 遍历OLE中的文件
-
-                            # 判断是不是[1]Ole10Native，使用列表推导式忽略大小写，不是的话就不要继续了
-                            if '\x01ole10native'.casefold() not in [path_part.casefold() for path_part in path_parts]:
-                                continue
-
-                            stream = None
-                            try:
-                                # 使用 Ole File 打开 OLE 文件
-                                stream = ole.openstream(path_parts)
-                                opkg = oleobj.OleNativeStream(stream)
-                            except IOError:
-                                if is_print:
-                                    print('不是OLE文件：', path_parts)
-                                if stream is not None:  # 关闭文件流
-                                    stream.close()
-                                continue
-
-                            # 打印信息
-                            if opkg.is_link:
-                                if is_print:
-                                    print('是链接而不是文件，跳过')
-                                continue
-
-                            ole_filename = re_decode(opkg.filename)
-                            ole_src_path = re_decode(opkg.src_path)
-                            ole_temp_path = re_decode(opkg.temp_path)
-                            if is_print:
-                                print('文件名：{0}，原路径：{1}，缓存路径：{2}'.format(ole_filename, ole_src_path, ole_temp_path))
-
-                            # 生成新的文件名
-                            filename = get_new_path(len(export_files) + 1, ole_filename, output_dir)
-                            if is_print:
-                                print('OLE 导出路径：', filename)
-
-                            # 转存
-                            try:
-                                if is_print:
-                                    print('导出OLE中的文件：', filename)
-                                with open(filename, 'wb') as writer:
-                                    n_dumped = 0
-                                    next_size = min(oleobj.DUMP_CHUNK_SIZE, opkg.actual_size)
-                                    while next_size:
-                                        data = stream.read(next_size)
-                                        writer.write(data)
-                                        n_dumped += len(data)
-                                        if len(data) != next_size:
-                                            if is_print:
-                                                print('想要读取 {0}, 实际取得 {1}'.format(next_size, len(data)))
-                                            break
-                                        next_size = min(oleobj.DUMP_CHUNK_SIZE, opkg.actual_size - n_dumped)
-                                export_files.append(filename)  # 记录导出的文件
-                            except Exception as exc:
-                                if is_print:
-                                    print('在转存时出现错误：{0} {1}'.format(filename, exc))
-                            finally:
+                        stream = None
+                        try:
+                            # 使用 Ole File 打开 OLE 文件
+                            stream = ole.openstream(path_parts)
+                            opkg = oleobj.OleNativeStream(stream)
+                        except IOError:
+                            logger.debug('不是OLE文件：%s', path_parts)
+                            if stream is not None:  # 关闭文件流
                                 stream.close()
-        if is_print:
-            print('导出的所有文件：', export_files)
+                            continue
+
+                        # 打印信息
+                        if opkg.is_link:
+                            logger.debug('是链接而不是文件，跳过')
+                            continue
+
+                        ole_filename = self.re_decode(opkg.filename)
+                        ole_src_path = self.re_decode(opkg.src_path)
+                        ole_temp_path = self.re_decode(opkg.temp_path)
+                        logger.debug('文件名：%s，原路径：%s，缓存路径：%s', ole_filename, ole_src_path, ole_temp_path)
+
+                        # 生成新的文件名
+                        filename = self.get_new_path(index, len(export_files) + 1, ole_filename, name_format,
+                                                     output_dir)
+                        logger.debug('OLE附件导出路径：%s', filename)
+
+                        # 转存
+                        try:
+                            with open(filename, 'wb') as writer:
+                                n_dumped = 0
+                                next_size = min(oleobj.DUMP_CHUNK_SIZE, opkg.actual_size)
+                                while next_size:
+                                    data = stream.read(next_size)
+                                    writer.write(data)
+                                    n_dumped += len(data)
+                                    if len(data) != next_size:
+                                        logger.warning('想要读取 %d, 实际取得 %d', next_size, len(data))
+                                        break
+                                    next_size = min(oleobj.DUMP_CHUNK_SIZE, opkg.actual_size - n_dumped)
+                            export_files.append(filename)  # 记录导出的文件
+                        except Exception as exc:
+                            is_error = True
+                            logger.error('在转存时出现错误', exc)
+                        finally:
+                            stream.close()
+        logger.debug('导出的所有文件：%s', export_files)
+        if not is_error and is_del_raw:
+            logger.debug('删除原文件：%s', docx_file)
+            os.remove(docx_file)
+        self.remove_empty_dir(output_dir)
         return export_files
+
+    @staticmethod
+    def remove_empty_dir(target_dir):
+        if os.path.isdir(target_dir):
+            if not os.listdir(target_dir):
+                logger.debug("删除空文件夹：%s", target_dir)
+                os.removedirs(target_dir)
 
 
 def run():

@@ -188,7 +188,7 @@ class ExportGUI:
         self.tf_d_title = ttk.Labelframe(self.top)
         self.tf_d_title.configure(relief='sunken')
         self.tf_d_title.configure(labelanchor="n")
-        self.tf_d_title.configure(text='''正在处理''')
+        self.tf_d_title.configure(text='''文件处理''')
         self.tf_d_title.place(relx=0.013, rely=0.022, relheight=0.956, relwidth=0.975)
         self.tf_d_title.configure(relief="sunken")
         self.pb_d_main = ttk.Progressbar(self.tf_d_title)
@@ -262,11 +262,51 @@ class ExportGUI:
 
     def switch_func(self, f):
         if f == 'pb':
+            # 扩展按钮隐藏
             self.btn_d_rename.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
+            # 多选隐藏
             self.cb_d_all.place(relx=0, rely=0, relwidth=0, relheight=0.0, height=0, bordermode='ignore')
+            # 提示面板隐藏
             self.txt_d_ask_show.place(relx=0, rely=0, relheight=0, relwidth=0)
+            # 显示按钮
+            self.btn_d_left.place(relx=0.738, rely=0.925, height=27, width=87, bordermode='ignore')
+            self.btn_d_right.place(relx=0.876, rely=0.925, height=27, width=87, bordermode='ignore')
+            # 修改按钮文字（修改按钮功能）
+            self.btn_d_left.configure(text='''暂停''')
+            self.btn_d_right.configure(text='''取消''')
         elif f == 'ask':
+            # 显示按钮
+            self.btn_d_left.place(relx=0.738, rely=0.925, height=27, width=87, bordermode='ignore')
+            self.btn_d_right.place(relx=0.876, rely=0.925, height=27, width=87, bordermode='ignore')
+            # 显示提示面板
             self.txt_d_ask_show.place(relx=0, rely=0, relheight=1, relwidth=1)
+            # 显示扩展按钮
             self.btn_d_rename.place(relx=0.6, rely=0.925, height=27, width=87, bordermode='ignore')
+            # 显示多选框
             self.cb_d_all.place(relx=0.013, rely=0.93, relwidth=0.4, relheight=0.0, height=23, bordermode='ignore')
-
+            # 修改按钮文字（修改按钮功能）
+            self.btn_d_left.configure(text='''覆盖''')
+            self.btn_d_right.configure(text='''跳过''')
+        elif f == 'tp':
+            # 显示提示面板
+            self.txt_d_ask_show.place(relx=0, rely=0, relheight=1, relwidth=1)
+            # 按钮隐藏
+            self.btn_d_left.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
+            self.btn_d_right.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
+            # 扩展按钮隐藏
+            self.btn_d_rename.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
+            # 多选隐藏
+            self.cb_d_all.place(relx=0, rely=0, relwidth=0, relheight=0.0, height=0, bordermode='ignore')
+        elif f == 'ta':
+            # 显示提示面板
+            self.txt_d_ask_show.place(relx=0, rely=0, relheight=1, relwidth=1)
+            # 显示按钮
+            self.btn_d_left.place(relx=0.738, rely=0.925, height=27, width=87, bordermode='ignore')
+            self.btn_d_right.place(relx=0.876, rely=0.925, height=27, width=87, bordermode='ignore')
+            # 扩展按钮隐藏
+            self.btn_d_rename.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
+            # 多选隐藏
+            self.cb_d_all.place(relx=0, rely=0, relwidth=0, relheight=0.0, height=0, bordermode='ignore')
+            # 修改按钮文字（修改按钮功能）
+            self.btn_d_left.configure(text='''切换''')
+            self.btn_d_right.configure(text='''关闭''')
