@@ -8,9 +8,7 @@ from multiprocessing import Pool
 from threading import Thread
 from gui import ExportGUI
 
-# {'文件名':['导出文件1','导出文件2',......]}
-success_file_dict = {}
-fail_file_list = []
+
 
 export_dialog = None
 
@@ -101,11 +99,13 @@ def run(file_list, parameter):
 
 class Export(ExportGUI):
 
-    def __init__(self, master=None, parameter=None, **kw):
-        super().__init__(**kw)
+    def __init__(self, master=None, parameter=None):
+        super().__init__(master)
         self.master = master
-        self.transient(master)  # 设置为对话框
-        self.grab_set()
+
+        # {'文件名':['导出文件1','导出文件2',......]}
+        self.success_file_dict = {}
+        self.fail_file_list = []
 
         self.exit_time = 0  # 点两次退出
         self.pr_val = 0  # 导出进度
@@ -123,8 +123,6 @@ class Export(ExportGUI):
 
         check = self.check_init(parameter)
 
-        self.protocol('WM_DELETE_WINDOW', self.exit)
-
         self.file_list_len = len(self.file_list)
 
         parameter = {
@@ -136,9 +134,8 @@ class Export(ExportGUI):
         }
 
         if check:
-
             start_task(file_list=self.file_list, parameter=parameter)
-            self.result = success_file_dict
+            self.result = self.success_file_dict
         else:
             self.after_destroy()
 
@@ -187,7 +184,7 @@ class Export(ExportGUI):
         return not is_exit
 
     def after_destroy(self):
-        self.after(1000, self.destroy)
+        self.after(1000, self.close)
 
     def show_progress(self, current, message):
         if self.file_list_len != 0:
@@ -210,13 +207,5 @@ class Export(ExportGUI):
         self.entry_info_var.set(message)
         self.pb_main_val.set(current_percent)
 
-    def exit(self):
-        current_time = int(time.time())
-        if current_time - self.exit_time > 3:
-            logger.debug('再点一次退出')
-            self.lb_tips_val.set('再点一次退出')
-            self.exit_time = current_time
-        else:
-            logger.debug('取消导出')
-            self.result = '取消导出'
-            self.destroy()
+    def close(self):
+        pass
