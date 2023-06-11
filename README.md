@@ -9,8 +9,30 @@
 
 为批量批改学生在机房提交的实验报告，我需要对所有的实验文档内容进行处理。需要批量提取Word文档中的图片和附件以便进一步检查。如何提取？我想到了用起来比较方便的Python，经过试验，方案可行，故此记录。学生的作业主要是docx或者doc文档，学生把项目打成压缩包后以文件附件的形式放到文档中，另外附上项目运行截图以方便批阅检查。我教的这门课有5个班，179人，总共两千多份作业。
  ╮(╯▽╰)╭
-## 壹、方案
+
+## 壹、软件
+
+最终我使用Python的tkinter构建了一个图形界面的小工具（链接在末尾），能导出docx文档的相关内容，主界面如下：
+
+![软件主界面](images/README/image-20230611164359555.png)
+
+界面左右分栏，左边是待导出的docx文件列表，右边是一些导出选项。配置好之后点击“导出”按钮开始导出相关内容，导出界面如下：
+
+![文件导出面板](images/README/image-20230611163319451.png)
+
+导出成功后可以保存一份json格式的导出报告，这份报告中记录了导出的文件和原始文件的关系，导出报告界面如下：
+
+![生成导出报告](images/README/image-20230611163957281.png)
+
+功能就这样了，简简单单，剩下的识别作业，自动批改作业的代码还没整理，拿不出手，哈哈（>__<）。
+
+## 贰、方案
+
+**下面介绍软件细节相关内容和部分探索的过程：**
+
+
 使用Python处理Word文档，经过搜索，发现有如下几个主流方案：
+
 1. python-docx：python-docx是一个用于创建和更新Word（.docx）文件的python库，目前只支持docx。
 2. pywin32：能处理doc和docx文档，但是只能在Windows平台上用，而且使用的时候需要电脑有安装Office或者WPS。
 3. python-docxtpl：使用Word文件模板生成新的Word文档，这个好像跟主题无关，但是感觉水文档啥的很有用，故写一下。
@@ -18,7 +40,8 @@
 经过考虑，确认使用python-docx，不需要另外安装Office和WPS就能独立处理Word文档，支持跨平台。至于有学生提交doc文档？拒收！（我给他们的是docx文档，应该不会故意转成doc提交的，实在不行到时候再写个插件用pywin32把doc转成docx再处理吧~ QWQ）
 另外，还需要用到python-oletools这个库，配合python-docx可以用来导出嵌入的附件。
 
-## 贰、实现
+## 叁、实现
+
 ### 1. 要处理的Word文档
 要处理的Word文档大致如下图所示：
 (o゜▽゜)o☆
@@ -527,7 +550,8 @@ with open(text_file_path, 'w', encoding='utf-8') as f:
 也可以把这个文件加入到`export_files`中，毕竟这个也是导出的文件。
 φ(゜▽゜*)♪
 
-## 叁、总结
+## 肆、总结
+
 其实有这样功能的代码大多在网上都找不到（至少我没找到），得自己从头写，网上能找到的大多就是可以跟你说用什么，和一些零碎的代码，要是自己的需求比较特殊，还是得自己写代码。那么写代码的时候就不可避免的用到一些别人写好的代码，你要用的话就必须要懂里面的一些逻辑，就得看它的源码、看它的文档，同时还可以多写一些例程去验证自己的想法，通过DEBUG调试的单步运行去看程序运行的逻辑，去翻译源码的注释（英文好的直接看）……很多种方法。我在本次的实践中最大的收获就是学会了通过调试工具去写代码。一开始我用的是B站一位UP主的代码，他是使用XPath表达式实现的导出图片，但是我还想导出OLE文件内容，仿造他的代码写导出OLE的代码时出现了问题，经过了一下午和一晚上还没搞定，于是决定另寻出路了，通过调试发现了另外的导出方式，为此还发了个朋友圈，哈哈。这是经验的总结。
 再讲讲对于实现这个功能的过程中我阅读了oleobj源码的总结。我写这篇文章的目的也在于此，我好不容易看懂了oleobj中的代码，感觉不记录一下过段时间就忘记了。我两年前用Python写过导出docx的，能用，但是现在那个项目搞不懂了，自己都看不太懂了，没怎么写注释，也比较混乱，故重新写一遍。这样会花大量时间，还不如写一篇总结，方便自己的同时也可以给其他人以参考。
 ╰(*°▽°*)╯
@@ -588,12 +612,17 @@ OLE容器对象
 OLE2流，继承自`io.BytesIO`。
 返回一个只读文件对象，该对象可用于读取OLE流（`io.BytesIO`类的实例）的内容。要打开流，请使用`olefile.OleFileIO.openstream`函数。
 此类可以与任何普通流或迷你流一起使用，具体取决于偏移量、扇区大小和文件分配表参数。
-## 肆、项目
-1. GitHub：[https://github.com/Minuhy/python_docx_export](https://github.com/Minuhy/python_docx_export)
-2. 码云：[https://gitee.com/Minuhy/python_docx_export](https://gitee.com/Minuhy/python_docx_export)
-3. 博客园：[https://www.cnblogs.com/minuhy/p/17447849.html](https://www.cnblogs.com/minuhy/p/17447849.html)
-4. CSDN：[https://blog.csdn.net/XiaoYuHaoAiMin/article/details/130979264](https://blog.csdn.net/XiaoYuHaoAiMin/article/details/130979264)
-## 伍、参考文档
+
+## 伍、项目
+
+1. 软件（exe打包）：
+2. GitHub：[https://github.com/Minuhy/python_docx_export](https://github.com/Minuhy/python_docx_export)
+3. 码云：[https://gitee.com/Minuhy/python_docx_export](https://gitee.com/Minuhy/python_docx_export)
+4. 博客园：[https://www.cnblogs.com/minuhy/p/17447849.html](https://www.cnblogs.com/minuhy/p/17447849.html)
+5. CSDN：[https://blog.csdn.net/XiaoYuHaoAiMin/article/details/130979264](https://blog.csdn.net/XiaoYuHaoAiMin/article/details/130979264)
+
+## 陆、参考文档
+
 1. python-oletools项目：[https://github.com/decalage2/oletools](https://github.com/decalage2/oletools)
 2. 如何使用Python嵌入附件到Word文档中：[https://github.com/zhutong/Embbed-files-into-docx-with-Python](https://github.com/zhutong/Embbed-files-into-docx-with-Python)
 3. Python提取Word文档中的图片视频教程：[https://www.bilibili.com/video/BV14s4y1A7gY?p=14](https://www.bilibili.com/video/BV14s4y1A7gY?p=14)
@@ -601,3 +630,4 @@ OLE2流，继承自`io.BytesIO`。
 5. 文本框的读取和修改：[https://blog.csdn.net/weixin_42636075/article/details/129010740](https://blog.csdn.net/weixin_42636075/article/details/129010740)
 6. OLE文件介绍：[https://baike.baidu.com/item/OLE/2139114](https://baike.baidu.com/item/OLE/2139114)
 7. OLE文件结构：[https://www.cnblogs.com/AspDotNetMVC/p/3810839.html](https://www.cnblogs.com/AspDotNetMVC/p/3810839.html)
+8. Python tkinter：[http://c.biancheng.net/tkinter/](http://c.biancheng.net/tkinter/)
