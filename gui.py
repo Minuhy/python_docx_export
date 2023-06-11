@@ -24,6 +24,7 @@ class ApplicationGUI:
 
         self.top = top
         self.combobox_save_path = tk.StringVar()
+        self.combobox_export_cover = tk.StringVar()
         self.combobox_name1 = tk.StringVar()
         self.combobox_name2 = tk.StringVar()
         self.combobox_name3 = tk.StringVar()
@@ -45,11 +46,14 @@ class ApplicationGUI:
         self.btn_import_files.place(relx=0.025, rely=0.046, height=28, width=60, bordermode='ignore')
         self.btn_import_files.configure(text='''导入文件''')
         self.btn_import_dir = tk.ttk.Button(self.lf_file_list)
-        self.btn_import_dir.place(relx=0.21, rely=0.046, height=28, width=80, bordermode='ignore')
+        self.btn_import_dir.place(relx=0.195, rely=0.046, height=28, width=80, bordermode='ignore')
         self.btn_import_dir.configure(text='''导入文件夹''')
         self.btn_delete_list_items = tk.ttk.Button(self.lf_file_list)
         self.btn_delete_list_items.place(relx=0.775, rely=0.046, height=28, width=80, bordermode='ignore')
         self.btn_delete_list_items.configure(text='''删除选中项''')
+        self.btn_delete_list_all = tk.ttk.Button(self.lf_file_list)
+        self.btn_delete_list_all.place(relx=0.56, rely=0.046, height=28, width=80, bordermode='ignore')
+        self.btn_delete_list_all.configure(text='''删除所有项''')
         self.frame_list = tk.Frame(self.lf_file_list)
         self.frame_list.place(relx=0.025, rely=0.118, relheight=0.858, relwidth=0.95, bordermode='ignore')
         self.frame_list.configure(relief='groove')
@@ -74,6 +78,20 @@ class ApplicationGUI:
         self.lb_save_position.configure(highlightcolor="black")
         self.lb_save_position.configure(justify='left')
         self.lb_save_position.configure(text='''保存位置：''')
+
+        self.lb_export = tk.Label(self.lf_export_setting)
+        self.lb_export.place(relx=0.022, rely=0.515, height=23, width=348, bordermode='ignore')
+        self.lb_export.configure(activebackground="#f0f0f0")
+        self.lb_export.configure(anchor='w')
+        self.lb_export.configure(background="#f0f0f0")
+        self.lb_export.configure(compound='left')
+        self.lb_export.configure(disabledforeground="#a3a3a3")
+        self.lb_export.configure(foreground="#000000")
+        self.lb_export.configure(highlightbackground="#f2f2f2")
+        self.lb_export.configure(highlightcolor="black")
+        self.lb_export.configure(justify='left')
+        self.lb_export.configure(text='''导出策略：''')
+
         self.cb_save_position = ttk.Combobox(self.lf_export_setting)
         self.cb_save_position.place(relx=0.027, rely=0.094, height=27, relwidth=0.71, bordermode='ignore')
         self.cb_save_position.configure(textvariable=self.combobox_save_path)
@@ -154,11 +172,17 @@ class ApplicationGUI:
         self.cb_export_type_combine_text_table.configure(text='''文本表格合并''')
         self.cb_export_type_combine_text_table.configure(variable=self.che_combine)
         self.btn_export = tk.ttk.Button(self.lf_export_setting)
-        self.btn_export.place(relx=0.806, rely=0.521, height=28, width=60, bordermode='ignore')
+        self.btn_export.place(relx=0.806, rely=0.658, height=28, width=60, bordermode='ignore')
         self.btn_export.configure(text='''导出''')
 
+        self.cb_export_cover = ttk.Combobox(self.lf_export_setting)
+        self.cb_export_cover.place(relx=0.027, rely=0.57, height=27, relwidth=0.5, bordermode='ignore')
+        self.cb_export_cover.configure(textvariable=self.combobox_export_cover)
+        self.cb_export_cover.configure(takefocus="")
+        self.cb_export_cover.configure(state="readonly")
+
         self.cb_delete_raw_file = tk.ttk.Checkbutton(self.lf_export_setting)
-        self.cb_delete_raw_file.place(relx=0.58, rely=0.453, relheight=0.063, relwidth=0.4, bordermode='ignore')
+        self.cb_delete_raw_file.place(relx=0.58, rely=0.57, relheight=0.063, relwidth=0.4, bordermode='ignore')
         self.cb_delete_raw_file.configure(text='''导出成功后删除原文件''')
         self.cb_delete_raw_file.configure(variable=self.che_delete_raw)
         self.lb_brand = tk.Label(self.lf_export_setting, text='批量导出docx文本、图片和附件程序\n',
@@ -168,13 +192,13 @@ class ApplicationGUI:
                                  width=34, height=2,
                                  # 设置填充区距离、边框宽度和其样式（凹陷式）
                                  padx=10, pady=15, borderwidth=10, relief='sunken')
-        self.lb_brand.place(relx=0.027, rely=0.754, relwidth=0.9, height=93, width=17, bordermode='ignore')
+        self.lb_brand.place(relx=0.027, rely=0.785, relwidth=0.9, height=82, width=17, bordermode='ignore')
         self.lb_tips = tk.Entry(self.lf_export_setting)
         self.lb_tips.configure(textvariable=self.entry_tips_val)
         self.lb_tips.configure(bg='#ffeeee')
         self.lb_tips.configure(selectbackground='#ff2121')
         self.lb_tips.configure(selectforeground='#000000')
-        self.lb_tips.place(relx=0.027, rely=0.704, relwidth=0.9, height=20, width=17, bordermode='ignore')
+        self.lb_tips.place(relx=0.027, rely=0.734, relwidth=0.9, height=20, width=17, bordermode='ignore')
 
 
 class ExportGUI:
@@ -184,6 +208,9 @@ class ExportGUI:
         self.lb_d_tips_var = tk.StringVar()
         self.pd_d_main_var = tk.IntVar()
         self.cb_d_all_var = tk.IntVar()
+        self.btn_d_right_var = tk.StringVar()
+        self.btn_d_left_var = tk.StringVar()
+        self.btn_d_e_var = tk.StringVar()
 
         self.tf_d_title = ttk.Labelframe(self.top)
         self.tf_d_title.configure(relief='sunken')
@@ -235,20 +262,20 @@ class ExportGUI:
         self.txt_d_ask_show.configure(wrap="word")
         self.txt_d_ask_show.insert('end', '导出')
 
-        self.btn_d_rename = ttk.Button(self.tf_d_title)
-        self.btn_d_rename.place(relx=0.6, rely=0.925, height=27, width=87, bordermode='ignore')
-        self.btn_d_rename.configure(takefocus="")
-        self.btn_d_rename.configure(text='''重命名''')
-        self.btn_d_rename.configure(compound='left')
+        self.btn_d_e = ttk.Button(self.tf_d_title)
+        self.btn_d_e.place(relx=0.6, rely=0.925, height=27, width=87, bordermode='ignore')
+        self.btn_d_e.configure(takefocus="")
+        self.btn_d_e.configure(textvariable=self.btn_d_e_var)
+        self.btn_d_e.configure(compound='left')
         self.btn_d_left = ttk.Button(self.tf_d_title)
         self.btn_d_left.place(relx=0.738, rely=0.925, height=27, width=87, bordermode='ignore')
         self.btn_d_left.configure(takefocus="")
-        self.btn_d_left.configure(text='''暂停''')
+        self.btn_d_left.configure(textvariable=self.btn_d_left_var)
         self.btn_d_left.configure(compound='left')
         self.btn_d_right = ttk.Button(self.tf_d_title)
         self.btn_d_right.place(relx=0.876, rely=0.925, height=27, width=87, bordermode='ignore')
         self.btn_d_right.configure(takefocus="")
-        self.btn_d_right.configure(text='''取消''')
+        self.btn_d_right.configure(textvariable=self.btn_d_right_var)
         self.btn_d_right.configure(compound='left')
         self.cb_d_all = ttk.Checkbutton(self.tf_d_title)
         self.cb_d_all.place(relx=0.013, rely=0.93, relwidth=0.4, relheight=0.0, height=23, bordermode='ignore')
@@ -260,53 +287,39 @@ class ExportGUI:
     def close(self):
         self.tf_d_title.destroy()
 
-    def switch_func(self, f):
-        if f == 'pb':
-            # 扩展按钮隐藏
-            self.btn_d_rename.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
-            # 多选隐藏
-            self.cb_d_all.place(relx=0, rely=0, relwidth=0, relheight=0.0, height=0, bordermode='ignore')
-            # 提示面板隐藏
-            self.txt_d_ask_show.place(relx=0, rely=0, relheight=0, relwidth=0)
-            # 显示按钮
+    def switch_func(self, btn_e=None, btn_l='暂停', btn_r='取消', cb=None, tip_pad=None):
+        # 扩展按钮
+        if btn_e:
+            self.btn_d_e.place(relx=0.6, rely=0.925, height=27, width=87, bordermode='ignore')
+            self.btn_d_e_var.set(str(btn_e))
+        else:
+            self.btn_d_e.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
+
+        # 左边按钮
+        if btn_l:
             self.btn_d_left.place(relx=0.738, rely=0.925, height=27, width=87, bordermode='ignore')
+            self.btn_d_left_var.set(str(btn_l))
+        else:
+            self.btn_d_left.place(relx=0.0, rely=0.0, height=0, width=0, bordermode='ignore')
+
+        # 右边按钮
+        if btn_r:
             self.btn_d_right.place(relx=0.876, rely=0.925, height=27, width=87, bordermode='ignore')
-            # 修改按钮文字（修改按钮功能）
-            self.btn_d_left.configure(text='''暂停''')
-            self.btn_d_right.configure(text='''取消''')
-        elif f == 'ask':
-            # 显示按钮
-            self.btn_d_left.place(relx=0.738, rely=0.925, height=27, width=87, bordermode='ignore')
-            self.btn_d_right.place(relx=0.876, rely=0.925, height=27, width=87, bordermode='ignore')
-            # 显示提示面板
-            self.txt_d_ask_show.place(relx=0, rely=0, relheight=1, relwidth=1)
-            # 显示扩展按钮
-            self.btn_d_rename.place(relx=0.6, rely=0.925, height=27, width=87, bordermode='ignore')
-            # 显示多选框
+            self.btn_d_right_var.set(str(btn_r))
+        else:
+            self.btn_d_right.place(relx=0.0, rely=0.0, height=0, width=0, bordermode='ignore')
+
+        # 多选框
+        if cb:
             self.cb_d_all.place(relx=0.013, rely=0.93, relwidth=0.4, relheight=0.0, height=23, bordermode='ignore')
-            # 修改按钮文字（修改按钮功能）
-            self.btn_d_left.configure(text='''覆盖''')
-            self.btn_d_right.configure(text='''跳过''')
-        elif f == 'tp':
-            # 显示提示面板
-            self.txt_d_ask_show.place(relx=0, rely=0, relheight=1, relwidth=1)
-            # 按钮隐藏
-            self.btn_d_left.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
-            self.btn_d_right.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
-            # 扩展按钮隐藏
-            self.btn_d_rename.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
-            # 多选隐藏
+            self.cb_d_all.configure(text=str(cb))
+        else:
             self.cb_d_all.place(relx=0, rely=0, relwidth=0, relheight=0.0, height=0, bordermode='ignore')
-        elif f == 'ta':
-            # 显示提示面板
+
+        # 提示面板
+        if tip_pad:
             self.txt_d_ask_show.place(relx=0, rely=0, relheight=1, relwidth=1)
-            # 显示按钮
-            self.btn_d_left.place(relx=0.738, rely=0.925, height=27, width=87, bordermode='ignore')
-            self.btn_d_right.place(relx=0.876, rely=0.925, height=27, width=87, bordermode='ignore')
-            # 扩展按钮隐藏
-            self.btn_d_rename.place(relx=0, rely=0, height=0, width=0, bordermode='ignore')
-            # 多选隐藏
-            self.cb_d_all.place(relx=0, rely=0, relwidth=0, relheight=0.0, height=0, bordermode='ignore')
-            # 修改按钮文字（修改按钮功能）
-            self.btn_d_left.configure(text='''切换''')
-            self.btn_d_right.configure(text='''关闭''')
+            self.txt_d_ask_show.delete('1.0', 'end')
+            self.txt_d_ask_show.insert('end', str(tip_pad))
+        else:
+            self.txt_d_ask_show.place(relx=0, rely=0, relheight=0, relwidth=0)

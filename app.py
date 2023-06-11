@@ -1,5 +1,14 @@
+# ! /usr/bin/env python3
+#  -*- coding: utf-8 -*-
+#
+# yumizi @ 2023-06
+#
+# 一堆屎山代码
+#
+import json
 import time
 from threading import Thread
+from tkinter.filedialog import asksaveasfile
 
 import docx
 
@@ -39,6 +48,11 @@ def file_check(file_path: str):
 class Application(ApplicationGUI):
     def __init__(self, master=None, version=''):
         super().__init__(master)
+        # 导出列表
+        self.export_list = {}
+        # 失败列表
+        self.fail_list = []
+
         self.master = master
         self.version = version
 
@@ -53,16 +67,14 @@ class Application(ApplicationGUI):
         self.set_checkbutton_text()
         self.register_command()
 
-        self.entry_tips_val.set('(>_<)')
+        self.entry_tips_val.set('<< (>_<)')
 
         self.export_ui = None
-        self.is_e_pause = False
-        self.is_e_stop = False
         self.e_progress = 0
         self.e_total_task = 0
         self.e_rename = 0
-        self.e_left = 0
-        self.e_right = 0
+        self.e_cancel = 0
+        self.e_pause = 0
 
         self.lb_brand.configure(text='批量导出docx文本、图片和附件程序\n' + self.version + '\n@B站：敏Ymm')
 
@@ -78,6 +90,9 @@ class Application(ApplicationGUI):
         self.cb_save_position['value'] = ('原文件目录中以原文件命名的子文件夹中', '原文件所在文件夹', '自定义文件夹')
         self.combobox_save_path.set(self.cb_save_position['value'][0])
         self.cb_save_position.current(0)
+
+        self.cb_export_cover['value'] = ('同路径文件：覆盖', '同路径文件：自动重命名', '同路径文件：跳过')
+        self.combobox_export_cover.set(self.cb_export_cover['value'][0])
 
         self.cb_name_part1['value'] = ('|自增编号|', '|连接符|', '|原文件名|', '|后缀名|')
         self.cb_name_part2['value'] = ('|连接符|', '|原文件名|', '|后缀名|', '|自增编号|')
@@ -103,6 +118,7 @@ class Application(ApplicationGUI):
                                        selectmode=tk.MULTIPLE,
                                        yscrollcommand=scroll_v_bar.set,
                                        xscrollcommand=scroll_h_bar.set)
+
         scroll_v_bar.pack(side=tk.RIGHT, fill=tk.Y)  # 设置垂直滚动条显示的位置
         scroll_v_bar.config(command=self.main_listbox.yview)  # 设置Scrollbar组件的command选项为该组件的yview()方法
         scroll_h_bar.pack(side=tk.BOTTOM, fill=tk.X)  # 设置水平滚动条显示的位置
@@ -117,6 +133,8 @@ class Application(ApplicationGUI):
         self.btn_import_dir.bind('<Button>', self.choose_dir)
         # 删除列表选中项
         self.btn_delete_list_items.bind('<Button>', self.remove_list_item)
+        # 删除所有项
+        self.btn_delete_list_all.bind('<Button>', self.remove_list_all)
         # 选择文件夹
         self.btn_choose_position.bind('<Button>', self.choose_export_dir)
         # 导出按钮
@@ -126,6 +144,7 @@ class Application(ApplicationGUI):
         self.bind_cb_evt(self.cb_name_part2, self.name_tips)
         self.bind_cb_evt(self.cb_name_part3, self.name_tips)
         self.bind_cb_evt(self.cb_name_part4, self.name_tips)
+        self.bind_cb_evt(self.cb_export_cover, self.export_tips_cover)
         # ---------------------------------------------------------------------------
         self.bind_cb_evt(self.cb_save_position, self.dir_tips)
         self.bind_cb_evt(self.entry_save_position, self.dir_tips)
@@ -146,6 +165,23 @@ class Application(ApplicationGUI):
         cb.bind('<space>', evt)
         cb.bind('<Return>', evt)
         cb.bind('<Key>', evt)
+
+    def export_tips_cover(self, evt):
+        if not evt:
+            return
+        way = self.combobox_export_cover.get()
+        if way == self.cb_export_cover['value'][0]:
+            # 覆盖
+            self.entry_tips_val.set('导出时相同路径的文件会被覆盖掉')
+        elif way == self.cb_export_cover['value'][1]:
+            # 重命名
+            self.entry_tips_val.set('导出时若文件已存在则自动重命名')
+        elif way == self.cb_export_cover['value'][2]:
+            # 跳过
+            self.entry_tips_val.set('导出时若文件已存在则跳过')
+        else:
+            # 意外
+            self.entry_tips_val.set('这是什么情况？？！')
 
     def export_tips_image(self, evt):
         if not evt:
@@ -249,6 +285,22 @@ class Application(ApplicationGUI):
             self.entry_save_position_val.set(directory)
         self.dir_tips(None)
 
+    def remove_list_all(self, evt):
+        if not evt:
+            return
+        if not askyesno('删除所有项', '是否清空已导入列表？'):
+            return
+
+        if isinstance(self.main_listbox, tk.Listbox):
+            self.main_listbox.delete(0, 'end')
+
+        # 待处理文件列表
+        self.file_list = []
+        # 文件添加索引
+        self.file_index = 0
+
+        self.entry_tips_val.set('已清空列表')
+
     def remove_list_item(self, evt):
         if not evt:
             return
@@ -279,48 +331,13 @@ class Application(ApplicationGUI):
 
             self.entry_tips_val.set('已从列表移除{0}个文件'.format(success))
 
-    def add_file_list(self, files: list):
-        success = 0
-        print(self.file_list)
+    def add_file_list(self, files, is_choose_son=False):
+        file_list = []
 
-        # 序号前面补 0
-        bit = len(str(len(files)))
-        if bit < 4:
-            bit = 4
-
-        for file in files:
-            # 已添加，不需要再添加
-            if file in self.file_list:
-                continue
-            self.file_index += 1
-            logger.debug('添加文件：%s', file)
-            self.main_listbox.insert('end', str(self.file_index).rjust(bit, '0') + '|-' + file)  # 从最后一个位置开始加入值
-            self.file_list.append(file)
-            success += 1
-        showinfo('添加结果', '成功添加{0}个docx文件'.format(success))
-        self.entry_tips_val.set('成功添加{0}个docx文件，失败{1}个'.format(success, len(files) - success))
-
-    def choose_file(self, evt):
-        if not evt:
-            return
-        files_tuple = filedialog \
-            .askopenfilename(title='请选择docx文件', filetypes=[('Word', '.docx')],
-                             defaultextension='.docx',
-                             multiple=True)
-        if files_tuple:
-            file_list = []
-            for file in files_tuple:
-                if file_check(file):
-                    file_list.append(file)  # 添加到列表中
-            self.add_file_list(file_list)
-
-    def choose_dir(self, evt):
-        if not evt:
-            return
-        is_choose_son = askyesno('选择文件夹', '选择文件夹时是否选择子文件夹内的文件？')
-        directory = filedialog.askdirectory()
-        if directory:
-            file_list = []
+        # 遍历目录，拿到文件列表
+        if isinstance(files, str) and os.path.isdir(files):
+            logger.debug('添加文件夹')
+            directory = files
             logger.debug('添加子文件夹中的内容：%s 选择目录：%s', is_choose_son, directory)
             for root, dirs, files in os.walk(directory):  # 遍历目录
                 if directory != root and not is_choose_son:  # 跳过子文件夹
@@ -328,9 +345,61 @@ class Application(ApplicationGUI):
                 logger.debug('添加目录：%s', root)
                 for file in files:  # 遍历文件
                     file_path = os.path.join(root, file)  # 拼接路径
-                    if file_check(file_path):
-                        file_list.append(file_path)  # 添加到列表中
-            self.add_file_list(file_list)
+                    file_list.append(file_path)  # 添加到列表中
+        elif isinstance(files, tuple):
+            logger.debug('添加文件')
+            file_list = files
+        else:
+            showwarning('提示', '导入文件参数不正确')
+
+        success = 0
+
+        # 序号前面补 0
+        bit = len(str(len(file_list)))
+        if bit < 4:
+            bit = 4
+
+        # 添加到列表视图中
+        for file in file_list:
+            if file_check(file):
+                # 已添加，不需要再添加
+                if file in self.file_list:
+                    continue
+                self.file_index += 1
+                logger.debug('添加文件：%s', file)
+                self.main_listbox.insert(0, str(self.file_index).rjust(bit, '0') + '|-' + file)  # 从最后一个位置开始加入值
+                self.file_list.append(file)
+                success += 1
+
+        tip_str = '成功添加{0}个docx文件，失败{1}个'.format(success, len(file_list) - success)
+        self.entry_tips_val.set(tip_str)
+        logger.debug(tip_str)
+        showinfo('添加结果', '成功添加{0}个docx文件'.format(success))
+
+    def choose_file(self, evt):
+        if not evt:
+            return
+        self.entry_tips_val.set('正在导入，请等待.........')
+        files_tuple = filedialog \
+            .askopenfilename(title='请选择docx文件', filetypes=[('Word', '.docx')],
+                             defaultextension='.docx',
+                             multiple=True)
+        if files_tuple:
+            Thread(target=self.add_file_list, args=(files_tuple,)).start()
+
+    def choose_dir(self, evt):
+        """
+        选择文件夹
+        :param evt: 事件
+        :return: None
+        """
+        if not evt:
+            return
+        self.entry_tips_val.set('正在导入，请等待.........')
+        is_choose_son = askyesno('选择文件夹', '选择文件夹时是否选择子文件夹内的文件？')
+        directory = filedialog.askdirectory()
+        if directory:
+            Thread(target=self.add_file_list, args=(directory, is_choose_son)).start()
 
     def export(self, evt):
         """
@@ -343,14 +412,6 @@ class Application(ApplicationGUI):
         export_dir_choose = self.combobox_save_path.get()
         logger.debug('导出位置：%s', export_dir_choose)
 
-        try:
-            export_dir_choose = self.cb_save_position['value'].index(export_dir_choose) + 1
-        except ValueError:
-            showwarning('出错', '保存方式参数错误')
-            return
-
-        logger.debug('导出方式：%s', export_dir_choose)
-
         export_dir = self.entry_save_position_val.get()
         logger.debug('导出目录：%s', export_dir)
 
@@ -358,6 +419,13 @@ class Application(ApplicationGUI):
             if not (export_dir and os.path.isdir(export_dir)):
                 showwarning('导出时遇到问题', '保存位置未设置文件夹，请设置保存文件夹或设置其他保存位置')
                 return
+
+        try:
+            export_dir_choose = self.cb_save_position['value'].index(export_dir_choose) + 1
+            logger.debug('导出方式：%s', export_dir_choose)
+        except ValueError:
+            showwarning('出错', '保存方式参数错误')
+            return
 
         name = self.combobox_name1.get()
         name += self.combobox_name2.get()
@@ -387,13 +455,31 @@ class Application(ApplicationGUI):
         is_delete = self.che_delete_raw.get()
         logger.debug('导出后删除原文件：%s', str(is_delete))
 
+        cover = self.combobox_export_cover.get()
+        if cover == self.cb_export_cover['value'][0]:
+            # 覆盖
+            cover = 'cover'
+            logger.debug('导出时相同路径的文件会被覆盖掉')
+        elif cover == self.cb_export_cover['value'][1]:
+            # 重命名
+            cover = 'rename'
+            logger.debug('导出时若文件已存在则自动重命名')
+        elif cover == self.cb_export_cover['value'][2]:
+            # 跳过
+            cover = 'skip'
+            logger.debug('导出时若文件已存在则跳过')
+        else:
+            # 意外
+            showwarning('提示', '参数出现了意外，未知的文件覆盖策略')
+
         parameter = {
             'way': export_dir_choose,  # 保存方式
             'dir': export_dir,  # 保存目录
             'name': name,  # 文件名格式
             'type': export_type,  # 导出类型
             'del': bool(is_delete),  # 导出后删除原文件
-            'list': self.file_list  # 导出文件
+            'list': self.file_list,  # 导出文件
+            'cover': cover,  # 覆盖策略
         }
 
         # 开始导出
@@ -407,10 +493,10 @@ class Application(ApplicationGUI):
         :param parameter: 导出参数
         :return: None
         """
-        print('启动界面')
+        logger.debug('启动界面')
         # 初始化导出界面参数
-        self.is_e_pause = False
-        self.is_e_stop = False
+        self.e_cancel = 0
+        self.e_pause = 0
         self.e_progress = 0
         self.e_total_task = len(parameter.get('list'))
         # 初始化界面
@@ -419,28 +505,51 @@ class Application(ApplicationGUI):
         self.export_ui.txt_d_result_show.delete('1.0', 'end')
         self.export_ui.txt_d_result_show.insert('end', '准备导出......\n')
         # 切换到进度条界面
-        self.export_ui.switch_func('pb')
+        self.export_ui.switch_func(None, '暂停', '取消', None, None)
         # 重置提示信息
         self.export_ui.lb_d_tips_var.set('''处理进度：∞%''')
         # 重置进度和选项
         self.export_ui.pd_d_main_var.set(0)  # 进度
         self.export_ui.cb_d_all_var.set(0)  # 一律如此选项
         # 绑定点击事件
-        self.export_ui.btn_d_rename.bind('<Button-1>', self.e_btn_rename)
+        self.export_ui.btn_d_e.bind('<Button-1>', self.e_btn_ex)
         self.export_ui.btn_d_left.bind('<Button-1>', self.e_btn_left)
         self.export_ui.btn_d_right.bind('<Button-1>', self.e_btn_right)
 
         Thread(target=self.run, args=(parameter,)).start()
 
-    def e_btn_rename(self, evt):
+    def show_fail(self):
+        for i in range(7):
+            time.sleep(0.05)
+            self.export_ui.txt_d_result_show.insert(1.0, '-> \n')
+        for i, file in enumerate(self.fail_list):
+            time.sleep(0.01)
+            self.export_ui.txt_d_result_show.insert(1.0, '失败{0} -> {1}\n'.format(str(i + 1).rjust(3, '0'), file))
+        show_msg = """
+-->> 失败的原因可能是文件损坏或无内容，请尝试用WPS打开并另存为 <<--
+-->> >>>>>>复制到文件管理器地址栏中Enter可直接打开<<<<<<< <<--
+\n"""
+        show_msg = list(show_msg)
+        show_msg.reverse()
+        for i, c in enumerate(show_msg):
+            if str(c) == '\n':
+                time.sleep(0.4)
+            else:
+                time.sleep(0.015)
+            self.export_ui.txt_d_result_show.insert(1.0, str(c))
+
+    def e_btn_ex(self, evt):
         """
-        点击重命名按钮事件
+        点击“扩展”按钮
         :param evt: 事件
         :return: None
         """
         if not evt:
             return
-        self.e_rename = 1
+        if isinstance(self.export_ui, ExportGUI):
+            btn_text = self.export_ui.btn_d_e_var.get()
+            if btn_text == '失败列表':
+                Thread(target=self.show_fail).start()
 
     def e_btn_left(self, evt):
         """
@@ -450,7 +559,17 @@ class Application(ApplicationGUI):
         """
         if not evt:
             return
-        self.e_left = 1
+        if isinstance(self.export_ui, ExportGUI):
+            btn_text = self.export_ui.btn_d_left_var.get()
+            if btn_text == '暂停':
+                self.e_pause = 1
+                self.export_ui.btn_d_left_var.set('继续')
+                self.show_progress(0, '.............................', '已暂停')
+            elif btn_text == '继续':
+                self.e_pause = 0
+                self.export_ui.btn_d_left_var.set('暂停')
+            elif btn_text == '导出报告':
+                self.save_json(self.export_list)
 
     def e_btn_right(self, evt):
         """
@@ -460,27 +579,13 @@ class Application(ApplicationGUI):
         """
         if not evt:
             return
-        self.e_right = 1
-
-    def e_total(self, msg):
-        """
-        切换到提示界面，并弹出提示信息
-        :param msg: 提示信息
-        :return: None
-        """
-        self.export_ui.switch_func('ta')
-        self.export_ui.txt_d_ask_show.delete('1.0', 'end')
-        self.export_ui.txt_d_ask_show.insert('end', msg)
-
-    def e_tip(self, msg):
-        """
-        切换到提示界面，并弹出提示信息
-        :param msg: 提示信息
-        :return: None
-        """
-        self.export_ui.switch_func('tp')
-        self.export_ui.txt_d_ask_show.delete('1.0', 'end')
-        self.export_ui.txt_d_ask_show.insert('end', msg)
+        if isinstance(self.export_ui, ExportGUI):
+            btn_text = self.export_ui.btn_d_right_var.get()
+            if btn_text == '取消':
+                self.e_cancel = 1
+            elif btn_text == '关闭':
+                self.export_ui.tf_d_title.place(relx=0.0, rely=0.0, relheight=0.0, relwidth=0.0)
+                self.export_ui.tf_d_title.destroy()
 
     def show_progress(self, current, file, state):
         """
@@ -509,9 +614,6 @@ class Application(ApplicationGUI):
         # 在文本框中显示细节
         self.export_ui.txt_d_result_show.insert(1.0, '{0} -> {1}\n'.format(state, file))
 
-    def show_ask_cover(self):
-        self.export_ui.switch_func('ask')
-
     def run(self, parameter):
         print('开始处理任务')
 
@@ -524,25 +626,31 @@ class Application(ApplicationGUI):
             print('参数错误')
             return
 
-        export_list = {}
+        # 清空上次报告
+        self.export_list = {}
+
+        self.fail_list = []
 
         for index, file in enumerate(file_list):
-            time.sleep(0.1)
-            # 停止
-            if self.is_e_stop:
-                logger.debug('停止')
-                return
+            self.export_list[file] = []
+            time.sleep(0.01)
+            if self.e_cancel:
+                if askyesno('取消导出', '是否取消导出？（已导出的不会被清理）'):
+                    break
             # 暂停
-            while self.is_e_pause:
+            while self.e_pause:
                 continue
             logger.debug('处理文件：%s', file)
             try:
                 sub_file_list = self.dispose(index, file, parameter)
+                if isinstance(sub_file_list, bool) and not sub_file_list:
+                    raise IOError('文件打开出错')
                 if not sub_file_list:
                     sub_file_list = []
             except Exception as e:
-                logger.error('导出文件时出错', e)
-                self.show_progress(index, file, '失败\t'.rjust(6, '>'))
+                logger.exception('导出错误：导出文件时出错 %s' % str(e))
+                self.fail_list.append(file)
+                self.show_progress(index, file, '失败\t'.rjust(6, '-'))
                 continue
             logger.debug('成功 %s', file)
             # 统计计数
@@ -550,22 +658,45 @@ class Application(ApplicationGUI):
             success += 1
             sub_file_count += sub_count
             # 保存到总的导出列表中
-            export_list[file] = sub_file_list
-            self.show_progress(index, file, ('成功 %s\t' % str(sub_count)).rjust(6, '>'))
+            self.export_list[file] = sub_file_list
+            self.show_progress(index, file, '成功 %s\t' % str(sub_count).rjust(2, '0'))
+
         if len(file_list) == 0:
             logger.debug('没有需要处理的文件')
+            self.entry_tips_val.set('没有需要处理的文件')
+            self.export_ui.txt_d_result_show.insert(1.0, '没有需要处理的文件\n')
+            self.export_ui.switch_func(None, None, '关闭', None, None)
             showinfo('提示', '没有需要处理的文件')
+        else:
+            # 总结提示
+            showinfo('导出结果',
+                     '导出完成\n成功导出%d个docx文档\n生成子文档%d个\n失败%d个' % (success, sub_file_count, len(file_list) - success))
 
-        # 总结提示
-        self.e_tip('导出完成\n成功导出%d个docx文档\n生成子文档%d个\n失败%d个' % (success, sub_file_count, len(file_list) - success))
-
-        self.entry_tips_val.set('任务完成')
-        logger.debug('任务完成')
+            self.entry_tips_val.set('导出完成')
+            logger.debug('任务完成')
+            if self.fail_list:
+                self.export_ui.switch_func('失败列表', '导出报告', '关闭', None, None)
+            else:
+                self.export_ui.switch_func(None, '导出报告', '关闭', None, None)
+            # self.save_json(export_list)
 
     @staticmethod
-    def get_new_path(i, seek, file_path, file_name_format, out_dir):
+    def save_json(export_list):
+        f = asksaveasfile(mode='wb', defaultextension=".json")
+        if f:
+            json_str = json.dumps(export_list, ensure_ascii=False)
+            f.write(json_str.encode(encoding='utf-8'))
+            f.close()
+            logger.debug('导出结果保存成功')
+            showinfo('导出', '导出成功！')
+        else:
+            logger.debug('用户取消保存导出结果')
+
+    @staticmethod
+    def get_new_path(i, seek, file_path, file_name_format, out_dir, cover='rename'):
         """
         获取一个新的文件路径
+        :param cover: 覆盖策略 rename重命名（默认），skip跳过，cover覆盖
         :param i: 文件编号
         :param seek: 导出附件编号
         :param file_path: 文件名（路径）
@@ -586,11 +717,29 @@ class Application(ApplicationGUI):
             suffix = name_part[-1]  # 后缀名
             raw_file_name = '.'.join(name_part[:(part_count - 1)])  # 前面的，这么处理是因为有的文件名中有多个 .
         link_char = ' - '  # |连接符|
-        return out_dir + '/' + file_name_format.replace('|自增编号|', number) \
+        file_name = out_dir + '/' + file_name_format.replace('|自增编号|', number) \
             .replace('|连接符|', link_char) \
             .replace('|原文件名|', raw_file_name) \
             .replace('|后缀名|', '.' + suffix) \
-            .strip()  # 拼接路径
+            .strip()
+        if 'cover' == cover:
+            return file_name  # 拼接路径
+        if 'skip' == cover:
+            if os.path.isfile(file_name):
+                return None
+            else:
+                return file_name
+        if 'rename' == cover:
+            add_index = 1
+            while True:
+                if not os.path.isfile(file_name):
+                    return file_name
+                file_name = out_dir + '/' + file_name_format.replace('|自增编号|', number) \
+                    .replace('|连接符|', link_char) \
+                    .replace('|原文件名|', raw_file_name) \
+                    .replace('|后缀名|', '.' + str(add_index) + '.' + suffix) \
+                    .strip()
+                add_index += 1
 
     @staticmethod
     def re_decode(s: str, encoding: str = 'gbk'):
@@ -616,6 +765,7 @@ class Application(ApplicationGUI):
         name_format = parameter.get('name')
         export_type = parameter.get('type')
         is_del_raw = parameter.get('del')
+        cover = parameter.get('cover')
 
         # 导出过程中是否出错
         is_error = False
@@ -624,6 +774,9 @@ class Application(ApplicationGUI):
         export_files = []
         # 从1开始
         index += 1
+
+        # 附件编号
+        seek = 0
 
         if not docx_file.endswith('.docx'):
             logger.debug('不支持的文件类型')
@@ -642,7 +795,8 @@ class Application(ApplicationGUI):
                 logger.error('导出路径不正确：' + docx_file)
                 return export_files
 
-        output_dir = output_dir.replace('\\', '/')
+        # 导出文件前后取出空格（不去除可能导出失败）
+        output_dir = output_dir.strip()
 
         # 创建导出文件夹
         if not os.path.isdir(output_dir):
@@ -657,9 +811,9 @@ class Application(ApplicationGUI):
         try:
             docx_document = docx.Document(docx_file)
         except Exception as e:
-            logger.error('打开文档时出错', e)
+            logger.exception('打开文档时出错%s' % str(e))
             self.remove_empty_dir(output_dir)
-            return
+            return False
         logger.debug('打开文档完成')
 
         # 文档信息
@@ -683,11 +837,15 @@ class Application(ApplicationGUI):
             logger.debug('文档信息：%s', all_properties.replace('\n', '， '))
 
             # 导出文档信息
-            info_file_path = self.get_new_path(index, len(export_files) + 1, '文档信息.txt', name_format, output_dir)
-            logger.debug('文档信息保存位置：%s', info_file_path)
-            with open(info_file_path, 'w', encoding='utf-8') as f:
-                f.write(all_properties)
-            export_files.append(info_file_path)
+            seek += 1
+            info_file_path = self.get_new_path(index, seek, '文档信息.txt', name_format, output_dir, cover)
+            if info_file_path:
+                logger.debug('文档信息保存位置：%s', info_file_path)
+                with open(info_file_path, 'w', encoding='utf-8') as f:
+                    f.write(all_properties)
+                export_files.append(info_file_path)
+            else:
+                logger.debug('跳过文件')
 
         # 所有文本
         all_text = ''
@@ -705,27 +863,42 @@ class Application(ApplicationGUI):
             logger.debug('所有表格文本：%s', all_table_text)
 
         # 导出文本
-        if 'combine' in export_type:
+        if 'combine' in export_type and ('text' in export_type or 'table' in export_type):
 
-            combine_file_path = self.get_new_path(index, len(export_files) + 1, '文本和表格.txt', name_format, output_dir)
-            logger.debug('文档文本和表格保存位置：%s', combine_file_path)
-            with open(combine_file_path, 'w', encoding='utf-8') as f:
-                f.write(all_text)
-                f.write('\n')  # 换个行
-                f.write(all_table_text)
-            export_files.append(combine_file_path)
+            seek += 1
+            combine_file_path = self.get_new_path(index, seek, '文本和表格.txt', name_format, output_dir,
+                                                  cover)
+            if combine_file_path:
+                logger.debug('文档文本和表格保存位置：%s', combine_file_path)
+                with open(combine_file_path, 'w', encoding='utf-8') as f:
+                    f.write(all_text)
+                    f.write('\n')  # 换个行
+                    f.write(all_table_text)
+                export_files.append(combine_file_path)
+            else:
+                logger.debug('跳过文件')
         else:
-            text_file_path = self.get_new_path(index, len(export_files) + 1, '文本.txt', name_format, output_dir)
-            logger.debug('文档文本保存位置：%s', text_file_path)
-            with open(text_file_path, 'w', encoding='utf-8') as f:
-                f.write(all_text)
-            export_files.append(text_file_path)
+            if 'text' in export_type:
+                seek += 1
+                text_file_path = self.get_new_path(index, seek, '文本.txt', name_format, output_dir, cover)
+                if text_file_path:
+                    logger.debug('文档文本保存位置：%s', text_file_path)
+                    with open(text_file_path, 'w', encoding='utf-8') as f:
+                        f.write(all_text)
+                    export_files.append(text_file_path)
+                else:
+                    logger.debug('跳过文件')
 
-            table_file_path = self.get_new_path(index, len(export_files) + 1, '表格txt', name_format, output_dir)
-            logger.debug('文档表格保存位置：%s', table_file_path)
-            with open(table_file_path, 'w', encoding='utf-8') as f:
-                f.write(all_table_text)
-            export_files.append(table_file_path)
+            if 'table' in export_type:
+                seek += 1
+                table_file_path = self.get_new_path(index, seek, '表格.txt', name_format, output_dir, cover)
+                if table_file_path:
+                    logger.debug('文档表格保存位置：%s', table_file_path)
+                    with open(table_file_path, 'w', encoding='utf-8') as f:
+                        f.write(all_table_text)
+                    export_files.append(table_file_path)
+                else:
+                    logger.debug('跳过文件')
 
         # 遍历所有附件
         if 'image' in export_type or 'attachment' in export_type:
@@ -739,13 +912,18 @@ class Application(ApplicationGUI):
                     continue
 
                 # 构建导出路径
-                save_path = self.get_new_path(index, len(export_files) + 1, part.partname, name_format, output_dir)
+                seek += 1
+                save_path = self.get_new_path(index, seek, part.partname, name_format, output_dir, cover)
 
                 # ole 文件判断
                 # 不符合 .bin 作为后缀且文件名中有ole，则不被认为是OLE文件
-                if not (save_path.endswith('.bin') and 'ole' in save_path.lower()):
+                if not (part_name.lower().endswith('.bin') and 'ole' in part_name.lower()):
                     # 如果没有支持图片导出
                     if 'image' not in export_type:
+                        continue
+
+                    if save_path is None:
+                        logger.debug('跳过文件')
                         continue
 
                     # 直接写入文件
@@ -794,9 +972,14 @@ class Application(ApplicationGUI):
                         logger.debug('文件名：%s，原路径：%s，缓存路径：%s', ole_filename, ole_src_path, ole_temp_path)
 
                         # 生成新的文件名
-                        filename = self.get_new_path(index, len(export_files) + 1, ole_filename, name_format,
-                                                     output_dir)
+                        seek += 1
+                        filename = self.get_new_path(index, seek, ole_filename, name_format, output_dir, cover)
+
                         logger.debug('OLE附件导出路径：%s', filename)
+
+                        if filename is None:
+                            logger.debug('跳过')
+                            continue
 
                         # 转存
                         try:
@@ -814,7 +997,7 @@ class Application(ApplicationGUI):
                             export_files.append(filename)  # 记录导出的文件
                         except Exception as exc:
                             is_error = True
-                            logger.error('在转存时出现错误', exc)
+                            logger.exception('在转存时出现错误', exc)
                         finally:
                             stream.close()
         logger.debug('导出的所有文件：%s', export_files)
