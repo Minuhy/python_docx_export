@@ -615,7 +615,7 @@ OLE2流，继承自`io.BytesIO`。
 
 ## 伍、项目
 
-1. 软件（exe打包）：
+1. 软件（exe打包：`pyinstaller run.spec`）：
 2. GitHub：[https://github.com/Minuhy/python_docx_export](https://github.com/Minuhy/python_docx_export)
 3. 码云：[https://gitee.com/Minuhy/python_docx_export](https://gitee.com/Minuhy/python_docx_export)
 4. 博客园：[https://www.cnblogs.com/minuhy/p/17447849.html](https://www.cnblogs.com/minuhy/p/17447849.html)

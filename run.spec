@@ -21,7 +21,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [("images/icon.ico","images/icon.ico","DATA")],
-    name='run',
+    name='python_docx_export',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
