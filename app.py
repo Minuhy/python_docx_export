@@ -24,7 +24,7 @@ from gui import ApplicationGUI, ExportGUI
 # 版本
 from oletools import oleobj
 
-v = 'v 0.1.0.2'
+v = 'v 0.1.0.3'
 
 # 日志对象
 logger = log.Logger().log_create()
