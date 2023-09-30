@@ -6,6 +6,7 @@
 # 一堆屎山代码
 #
 import json
+import sys
 import time
 from threading import Thread
 from tkinter.filedialog import asksaveasfile
@@ -30,6 +31,14 @@ logger = log.Logger().log_create()
 
 # APP根目录
 app_path = os.path.dirname(os.path.abspath(__file__))
+# 资源嵌入
+mp = ''.join(['_', 'M', 'E', 'I', 'P', 'A', 'S', 'S'])
+
+
+def resource_path(file_name):
+    if hasattr(sys, mp):
+        return os.path.join(getattr(sys, mp), file_name)
+    return os.path.join(file_name)
 
 
 def file_check(file_path: str):
@@ -283,7 +292,7 @@ class Application(ApplicationGUI):
         directory = filedialog.askdirectory()
         if directory:
             self.entry_save_position_val.set(directory)
-        self.dir_tips(None)
+        self.dir_tips(evt)  # 选择文件夹后显示一下
 
     def remove_list_all(self, evt):
         if not evt:
@@ -329,7 +338,7 @@ class Application(ApplicationGUI):
                 self.file_list.remove(file_path)
                 success += 1
 
-            self.entry_tips_val.set('已从列表移除{0}个文件'.format(success))
+            self.entry_tips_val.set('已从列表中移除{0}个文件'.format(success))
 
     def add_file_list(self, files, is_choose_son=False):
         file_list = []
@@ -396,7 +405,7 @@ class Application(ApplicationGUI):
         if not evt:
             return
         self.entry_tips_val.set('正在导入，请等待.........')
-        is_choose_son = askyesno('选择文件夹', '选择文件夹时是否选择子文件夹内的文件？')
+        is_choose_son = askyesno('选择文件夹', '选择文件夹时是否选择所有子文件夹内的文件？')
         directory = filedialog.askdirectory()
         if directory:
             Thread(target=self.add_file_list, args=(directory, is_choose_son)).start()
@@ -526,8 +535,8 @@ class Application(ApplicationGUI):
             time.sleep(0.01)
             self.export_ui.txt_d_result_show.insert(1.0, '失败{0} -> {1}\n'.format(str(i + 1).rjust(3, '0'), file))
         show_msg = """
--->> 失败的原因可能是文件损坏或无内容，请尝试用WPS打开并另存为 <<--
--->> >>>>>>复制到文件管理器地址栏中Enter可直接打开<<<<<<< <<--
+-->> 失败的原因可能是文件损坏或无内容，请尝试用WPS打开并另存为docx <<--
+-->> >>>>>>  复制到文件管理器地址栏中Enter可直接打开  <<<<<<< <<--
 \n"""
         show_msg = list(show_msg)
         show_msg.reverse()
@@ -1029,7 +1038,7 @@ def run():
     root.protocol('WM_DELETE_WINDOW', close_window)
 
     root.title('导出docx')
-    root.iconbitmap('images/icon.ico')
+    root.iconbitmap(resource_path('images/icon.ico'))
     root.mainloop()
 
 
